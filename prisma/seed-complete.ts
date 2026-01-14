@@ -1,0 +1,478 @@
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+
+const prisma = new PrismaClient()
+
+async function main() {
+  console.log('🌱 Seeding database with complete fictional data...')
+
+  // 1. Criar usuário admin
+  const hashedPassword = await bcrypt.hash('admin123', 10)
+  
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@redagency.com' },
+    update: {},
+    create: {
+      email: 'admin@redagency.com',
+      name: 'Administrador',
+      password: hashedPassword,
+      role: 'ADMIN'
+    }
+  })
+
+  console.log('✅ Admin user created:', admin.email)
+
+  // 2. Criar usuário comum
+  const user = await prisma.user.upsert({
+    where: { email: 'user@redagency.com' },
+    update: {},
+    create: {
+      email: 'user@redagency.com',
+      name: 'Usuário Teste',
+      password: hashedPassword,
+      role: 'USER'
+    }
+  })
+
+  console.log('✅ User created:', user.email)
+
+  // 3. Criar configurações globais
+  const settings = [
+    {
+      key: 'targetMargin',
+      value: '0.30',
+      description: 'Margem alvo (ex.: 0,30 = 30%)'
+    },
+    {
+      key: 'hoursPerMonth',
+      value: '160',
+      description: 'Horas de trabalho por mês'
+    },
+    {
+      key: 'targetUtilization',
+      value: '0.65',
+      description: 'Utilização faturável média (ex.: 0,65 = 65%)'
+    },
+    {
+      key: 'costPerPersonPerMonth',
+      value: '2200',
+      description: 'Custo médio por pessoa / mês (empresa)'
+    },
+    {
+      key: 'overheadPeople',
+      value: '6',
+      description: 'Nº pessoas NÃO faturáveis (overhead)'
+    }
+  ]
+
+  for (const setting of settings) {
+    await prisma.globalSetting.upsert({
+      where: { key: setting.key },
+      update: { value: setting.value },
+      create: setting
+    })
+  }
+
+  console.log('✅ Global settings created')
+
+  // 4. Criar Departamentos
+  const departmentsData = [
+    {
+      name: 'Branding & Design',
+      code: 'DESIGN',
+      billableHeadcount: 4,
+      averageHourlyRate: 45,
+      targetUtilization: 0.65,
+      costPerPersonPerMonth: 2200
+    },
+    {
+      name: 'Marketing Digital & Performance',
+      code: 'MARKETING',
+      billableHeadcount: 3,
+      averageHourlyRate: 50,
+      targetUtilization: 0.70,
+      costPerPersonPerMonth: 2200
+    },
+    {
+      name: 'Vídeo & Fotografia',
+      code: 'VIDEO',
+      billableHeadcount: 2,
+      averageHourlyRate: 55,
+      targetUtilization: 0.60,
+      costPerPersonPerMonth: 2500
+    },
+    {
+      name: 'Web / UX / Dev',
+      code: 'WEB',
+      billableHeadcount: 4,
+      averageHourlyRate: 55,
+      targetUtilization: 0.65,
+      costPerPersonPerMonth: 2400
+    }
+  ]
+
+  const departmentMap = new Map<string, string>()
+
+  for (const deptData of departmentsData) {
+    const dept = await prisma.department.upsert({
+      where: { name: deptData.name },
+      update: {
+        billableHeadcount: deptData.billableHeadcount,
+        averageHourlyRate: deptData.averageHourlyRate,
+        targetUtilization: deptData.targetUtilization,
+        costPerPersonPerMonth: deptData.costPerPersonPerMonth
+      },
+      create: {
+        name: deptData.name,
+        code: deptData.code,
+        billableHeadcount: deptData.billableHeadcount,
+        averageHourlyRate: deptData.averageHourlyRate,
+        targetUtilization: deptData.targetUtilization,
+        costPerPersonPerMonth: deptData.costPerPersonPerMonth,
+        isActive: true
+      }
+    })
+    departmentMap.set(deptData.name, dept.id)
+    console.log(`✅ Department: ${dept.name}`)
+  }
+
+  // 5. Calcular métricas anuais dos departamentos
+  const { calculateDepartmentAnnualMetrics } = await import('../src/lib/business-logic/calculations')
+  for (const deptId of departmentMap.values()) {
+    await calculateDepartmentAnnualMetrics(deptId)
+  }
+  console.log('✅ Department annual metrics calculated')
+
+  // 6. Criar Catálogo de Avenças
+  const catalogData = [
+    {
+      name: 'Gestão Redes Sociais - Básico',
+      departmentName: 'Marketing Digital & Performance',
+      monthlyPrice: 800,
+      hoursPerMonth: 20,
+      internalHourlyCost: 30,
+      baseHours: 20,
+      basePrice: 800
+    },
+    {
+      name: 'Gestão Redes Sociais - Premium',
+      departmentName: 'Marketing Digital & Performance',
+      monthlyPrice: 1500,
+      hoursPerMonth: 40,
+      internalHourlyCost: 30,
+      baseHours: 40,
+      basePrice: 1500
+    },
+    {
+      name: 'Identidade Visual Completa',
+      departmentName: 'Branding & Design',
+      monthlyPrice: 2000,
+      hoursPerMonth: 30,
+      internalHourlyCost: 35,
+      baseHours: 30,
+      basePrice: 2000
+    },
+    {
+      name: 'Website WordPress',
+      departmentName: 'Web / UX / Dev',
+      monthlyPrice: 1200,
+      hoursPerMonth: 25,
+      internalHourlyCost: 40,
+      baseHours: 25,
+      basePrice: 1200
+    },
+    {
+      name: 'Vídeo Institucional',
+      departmentName: 'Vídeo & Fotografia',
+      monthlyPrice: 2500,
+      hoursPerMonth: 35,
+      internalHourlyCost: 45,
+      baseHours: 35,
+      basePrice: 2500
+    }
+  ]
+
+  const catalogMap = new Map<string, string>()
+
+  for (const catalogItem of catalogData) {
+    const departmentId = departmentMap.get(catalogItem.departmentName)
+    if (!departmentId) continue
+
+    const catalog = await prisma.retainerCatalog.upsert({
+      where: { name: catalogItem.name },
+      update: {
+        departmentId,
+        monthlyPrice: catalogItem.monthlyPrice,
+        hoursPerMonth: catalogItem.hoursPerMonth,
+        internalHourlyCost: catalogItem.internalHourlyCost,
+        baseHours: catalogItem.baseHours,
+        basePrice: catalogItem.basePrice
+      },
+      create: {
+        name: catalogItem.name,
+        departmentId,
+        monthlyPrice: catalogItem.monthlyPrice,
+        hoursPerMonth: catalogItem.hoursPerMonth,
+        internalHourlyCost: catalogItem.internalHourlyCost,
+        baseHours: catalogItem.baseHours,
+        basePrice: catalogItem.basePrice,
+        isActive: true
+      }
+    })
+    catalogMap.set(catalogItem.name, catalog.id)
+    console.log(`✅ Catalog: ${catalog.name}`)
+  }
+
+  // 7. Criar Avenças Ativas
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth() + 1
+
+  const retainersData = [
+    {
+      name: 'Cliente A - Redes Sociais',
+      departmentName: 'Marketing Digital & Performance',
+      catalogName: 'Gestão Redes Sociais - Básico',
+      quantity: 1,
+      startDate: new Date(currentYear, 0, 1), // Janeiro
+      notes: 'Cliente ativo desde janeiro'
+    },
+    {
+      name: 'Cliente B - Redes Sociais Premium',
+      departmentName: 'Marketing Digital & Performance',
+      catalogName: 'Gestão Redes Sociais - Premium',
+      quantity: 1,
+      startDate: new Date(currentYear, 2, 1), // Março
+      notes: 'Upgrade para premium'
+    },
+    {
+      name: 'Cliente C - Identidade Visual',
+      departmentName: 'Branding & Design',
+      catalogName: 'Identidade Visual Completa',
+      quantity: 1,
+      startDate: new Date(currentYear - 1, 11, 1), // Dezembro do ano anterior
+      notes: 'Projeto em andamento'
+    },
+    {
+      name: 'Cliente D - Website',
+      departmentName: 'Web / UX / Dev',
+      catalogName: 'Website WordPress',
+      quantity: 2,
+      startDate: new Date(currentYear, 0, 15),
+      notes: 'Dois sites em manutenção'
+    },
+    {
+      name: 'Cliente E - Vídeo',
+      departmentName: 'Vídeo & Fotografia',
+      catalogName: 'Vídeo Institucional',
+      quantity: 1,
+      startDate: new Date(currentYear, 1, 1), // Fevereiro
+      notes: 'Produção mensal'
+    },
+    {
+      name: 'Cliente F - Custom',
+      departmentName: 'Branding & Design',
+      catalogName: null,
+      monthlyPrice: 1500,
+      quantity: 1,
+      startDate: new Date(currentYear, 3, 1), // Abril
+      notes: 'Avença customizada sem catálogo'
+    }
+  ]
+
+  for (const retainerData of retainersData) {
+    const departmentId = departmentMap.get(retainerData.departmentName)
+    if (!departmentId) continue
+
+    let monthlyPrice = retainerData.monthlyPrice
+    let catalogId = null
+
+    if (retainerData.catalogName) {
+      catalogId = catalogMap.get(retainerData.catalogName) || null
+      if (catalogId) {
+        const catalog = await prisma.retainerCatalog.findUnique({
+          where: { id: catalogId }
+        })
+        if (catalog) {
+          monthlyPrice = Number(catalog.monthlyPrice)
+        }
+      }
+    }
+
+    if (!monthlyPrice) continue
+
+    const monthlyRevenue = monthlyPrice * retainerData.quantity
+
+    // Verificar se já existe
+    const existing = await prisma.retainer.findFirst({
+      where: {
+        name: retainerData.name,
+        departmentId: departmentId
+      }
+    })
+
+    if (existing) {
+      await prisma.retainer.update({
+        where: { id: existing.id },
+        data: {
+          catalogId: catalogId || undefined,
+          monthlyPrice,
+          quantity: retainerData.quantity,
+          monthlyRevenue,
+          notes: retainerData.notes || undefined,
+          isActive: true
+        }
+      })
+    } else {
+      await prisma.retainer.create({
+        data: {
+          departmentId,
+          catalogId: catalogId || undefined,
+          name: retainerData.name,
+          monthlyPrice,
+          quantity: retainerData.quantity,
+          monthlyRevenue,
+          startDate: retainerData.startDate,
+          notes: retainerData.notes || undefined,
+          isActive: true
+        }
+      })
+    }
+    console.log(`✅ Retainer: ${retainerData.name} (${retainerData.quantity}x €${monthlyPrice}/mês)`)
+  }
+
+  // 8. Criar Horas Planejadas e Objetivos para os últimos 6 meses
+  const monthsToFill = 6
+  const startMonth = currentMonth - monthsToFill + 1
+  const startYear = startMonth <= 0 ? currentYear - 1 : currentYear
+  const adjustedStartMonth = startMonth <= 0 ? startMonth + 12 : startMonth
+
+  for (let i = 0; i < monthsToFill; i++) {
+    let month = adjustedStartMonth + i
+    let year = startYear
+    
+    if (month > 12) {
+      month = month - 12
+      year = year + 1
+    }
+
+    for (const [deptName, deptId] of departmentMap.entries()) {
+      const dept = await prisma.department.findUnique({ where: { id: deptId } })
+      if (!dept) continue
+
+      // Horas Planejadas
+      const targetAvailableHours = 
+        dept.billableHeadcount * 
+        160 * 
+        Number(dept.targetUtilization)
+
+      // Horas reais (simuladas - 80% a 120% do target)
+      const utilizationVariation = 0.8 + Math.random() * 0.4 // 0.8 a 1.2
+      const actualBillableHours = targetAvailableHours * utilizationVariation
+
+      // Receita de projetos (simulada)
+      const projectRevenue = Math.random() * 5000 + 2000 // Entre 2000 e 7000
+
+      await prisma.plannedHours.upsert({
+        where: {
+          departmentId_month_year: {
+            departmentId: deptId,
+            month,
+            year
+          }
+        },
+        update: {
+          billableHeadcount: dept.billableHeadcount,
+          targetHoursPerMonth: 160,
+          targetUtilization: dept.targetUtilization,
+          targetAvailableHours,
+          actualBillableHours,
+          projectRevenue
+        },
+        create: {
+          departmentId: deptId,
+          month,
+          year,
+          billableHeadcount: dept.billableHeadcount,
+          targetHoursPerMonth: 160,
+          targetUtilization: dept.targetUtilization,
+          targetAvailableHours,
+          actualBillableHours,
+          projectRevenue
+        }
+      })
+
+      // Objetivos (baseado no mínimo anual / 12, com variação)
+      const baseObjective = dept.minimumRevenueAnnual 
+        ? Number(dept.minimumRevenueAnnual) / 12 
+        : 10000
+      const objectiveVariation = 0.9 + Math.random() * 0.2 // 0.9 a 1.1
+      const targetValue = baseObjective * objectiveVariation
+
+      await prisma.objective.upsert({
+        where: {
+          departmentId_month_year: {
+            departmentId: deptId,
+            month,
+            year
+          }
+        },
+        update: {
+          targetValue
+        },
+        create: {
+          departmentId: deptId,
+          month,
+          year,
+          targetValue
+        }
+      })
+    }
+    console.log(`✅ Data for ${month}/${year} created`)
+  }
+
+  // 9. Calcular Resultados para os meses preenchidos
+  const { calculateDepartmentResult } = await import('../src/lib/business-logic/calculations')
+  
+  for (let i = 0; i < monthsToFill; i++) {
+    let month = adjustedStartMonth + i
+    let year = startYear
+    
+    if (month > 12) {
+      month = month - 12
+      year = year + 1
+    }
+
+    for (const deptId of departmentMap.values()) {
+      try {
+        await calculateDepartmentResult(deptId, month, year)
+      } catch (error) {
+        console.error(`Error calculating result for dept ${deptId}, ${month}/${year}:`, error)
+      }
+    }
+  }
+
+  console.log('✅ Results calculated')
+
+  console.log('\n🎉 Seeding completed!')
+  console.log(`\n📊 Resumo:`)
+  console.log(`   - Usuários: 2 (admin + user)`)
+  console.log(`   - Configurações Globais: ${settings.length}`)
+  console.log(`   - Departamentos: ${departmentMap.size}`)
+  console.log(`   - Catálogo Avenças: ${catalogMap.size}`)
+  console.log(`   - Avenças Ativas: ${retainersData.length}`)
+  console.log(`   - Meses com dados: ${monthsToFill}`)
+  console.log(`\n🔑 Credenciais:`)
+  console.log(`   Admin: admin@redagency.com / admin123`)
+  console.log(`   User: user@redagency.com / admin123`)
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Error seeding:', e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })
+
