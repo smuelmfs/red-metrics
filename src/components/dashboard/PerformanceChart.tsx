@@ -1,22 +1,16 @@
 'use client'
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-
-interface PerformanceData {
-  department: string
-  performance: number
-  objective: number
-  revenue: number
-}
+import { PerformanceChartPoint } from '@/modules/dashboards'
 
 interface PerformanceChartProps {
-  data: PerformanceData[]
+  data: PerformanceChartPoint[]
 }
 
 export default function PerformanceChart({ data }: PerformanceChartProps) {
   const chartData = data.map(item => ({
-    name: item.department.length > 15 ? item.department.substring(0, 15) + '...' : item.department,
-    'Performance %': item.performance,
+    name: item.departmentName.length > 15 ? item.departmentName.substring(0, 15) + '...' : item.departmentName,
+    'Performance %': item.performancePercentage,
     'Objetivo (k€)': item.objective / 1000,
     'Receita (k€)': item.revenue / 1000
   }))

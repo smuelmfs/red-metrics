@@ -7,7 +7,7 @@ import AuditLogsList from '@/components/audit/AuditLogsList'
 export default async function AuditPage({
   searchParams,
 }: {
-  searchParams: { page?: string; entityType?: string }
+  searchParams: { page?: string; entityType?: string; entityId?: string; departmentId?: string }
 }) {
   const session = await getServerSession(authOptions)
 
@@ -27,6 +27,12 @@ export default async function AuditPage({
   const where: any = {}
   if (searchParams.entityType) {
     where.entityType = searchParams.entityType
+  }
+  if (searchParams.entityId) {
+    where.entityId = searchParams.entityId
+  }
+  if (searchParams.departmentId) {
+    where.departmentId = searchParams.departmentId
   }
 
   const [auditLogs, total] = await Promise.all([

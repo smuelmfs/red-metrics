@@ -6,6 +6,7 @@ import { createRetainerSchema } from '@/lib/business-logic/validations'
 import { createAuditLog } from '@/lib/business-logic/audit'
 import { calculateDepartmentResult } from '@/lib/business-logic/calculations'
 import { Decimal } from '@prisma/client/runtime/library'
+import { calculateRetainerMonthlyRevenue } from '@/modules/retainers'
 
 // GET /api/retainers
 export async function GET(request: NextRequest) {
@@ -68,8 +69,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = createRetainerSchema.parse(body)
 
-    // Calcular receita mensal
-    const monthlyRevenue = validatedData.monthlyPrice * (validatedData.quantity || 1)
+    // Calcular receita mensal (regra centralizada em modules/retainers)
+    const pricing = calculateRetainerMonthlyRevenue(
+      validatedData.monthlyPrice,
+      validatedData.quantity || 1
+    )
 
     const retainer = await prisma.retainer.create({
       data: {
@@ -77,9 +81,9 @@ export async function POST(request: NextRequest) {
         catalogId: validatedData.catalogId,
         name: validatedData.name,
         type: validatedData.type,
-        monthlyPrice: new Decimal(validatedData.monthlyPrice),
-        quantity: validatedData.quantity || 1,
-        monthlyRevenue: new Decimal(monthlyRevenue),
+        monthlyPrice: new Decimal(pricing.monthlyPrice),
+        quantity: pricing.quantity,
+        monthlyRevenue: new Decimal(pricing.monthlyRevenue),
         hoursPerMonth: validatedData.hoursPerMonth,
         variableCostPerMonth: validatedData.variableCostPerMonth,
         monthlyChurn: validatedData.monthlyChurn,

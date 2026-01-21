@@ -10,48 +10,18 @@ import DashboardWidget from '@/components/dashboard/DashboardWidget'
 import DashboardMonthYearFilter from '@/components/dashboard/DashboardMonthYearFilter'
 import { useDashboardLayout } from '@/hooks/useDashboardLayout'
 import Spinner from '@/components/ui/Spinner'
+import { CompanyDashboardOverview } from '@/modules/dashboards'
+import { getStatusTextClasses } from '@/lib/ui/status'
+import Link from 'next/link'
 
 interface DashboardPageClientProps {
-  totalRevenue: number
-  totalObjective: number
-  overallPerformance: number | null
-  departments: Array<{
-    id: string
-    name: string
-    code: string | null
-    billableHeadcount: number
-    averageHourlyRate: number
-    _count: { retainers: number }
-  }>
-  results: Array<{
-    departmentId: string
-    totalRevenue: number
-    objective: number | null
-    performance: number | null
-  }>
-  performanceData: Array<{
-    department: string
-    performance: number
-    objective: number
-    revenue: number
-  }>
-  last6Months: Array<{
-    month: string
-    revenue: number
-    objective: number
-  }>
+  overview: CompanyDashboardOverview
   selectedMonth: number
   selectedYear: number
 }
 
 export default function DashboardPageClient({
-  totalRevenue,
-  totalObjective,
-  overallPerformance,
-  departments,
-  results,
-  performanceData,
-  last6Months,
+  overview,
   selectedMonth,
   selectedYear
 }: DashboardPageClientProps) {
@@ -116,25 +86,23 @@ export default function DashboardPageClient({
             <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
               <p className="text-xs lg:text-sm text-gray-600 mb-2">Receita Total do Mês</p>
               <p className="text-2xl lg:text-3xl font-bold text-gray-900 break-words">
-                €{totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                €{overview.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
               <p className="text-xs lg:text-sm text-gray-600 mb-2">Objetivo Total</p>
               <p className="text-2xl lg:text-3xl font-bold text-gray-900 break-words">
-                €{totalObjective.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                €{overview.totalObjective.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             </div>
             <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 sm:col-span-2 lg:col-span-1">
               <p className="text-xs lg:text-sm text-gray-600 mb-2">Performance Geral</p>
               <p className={`text-2xl lg:text-3xl font-bold ${
-                overallPerformance && overallPerformance >= 100
-                  ? 'text-green-600'
-                  : overallPerformance && overallPerformance >= 80
-                  ? 'text-yellow-600'
-                  : 'text-red-600'
+                getStatusTextClasses(overview.status)
               }`}>
-                {overallPerformance !== null ? `${overallPerformance.toFixed(1)}%` : 'N/A'}
+                {overview.overallPerformancePercentage !== null
+                  ? `${overview.overallPerformancePercentage.toFixed(1)}%`
+                  : 'N/A'}
               </p>
             </div>
           </div>
@@ -143,10 +111,7 @@ export default function DashboardPageClient({
       case 'department-cards':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {departments.map((dept) => {
-              const result = results.find(r => r.departmentId === dept.id)
-              const performance = result?.performance ? Number(result.performance) : null
-
+            {overview.departments.map((dept) => {
               return (
                 <div
                   key={dept.id}
@@ -176,45 +141,41 @@ export default function DashboardPageClient({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Avenças Ativas:</span>
-                      <span className="font-medium">{dept._count.retainers}</span>
+                      <span className="font-medium">{dept.activeRetainersCount}</span>
                     </div>
                     
-                    {result && (
+                    {dept.totalRevenue !== null && (
                       <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Receita Total:</span>
                           <span className="font-medium">
-                            €{Number(result.totalRevenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            €{Number(dept.totalRevenue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </span>
                         </div>
-                        {result.objective && (
+                        {dept.objective !== null && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">Objetivo:</span>
                             <span className="font-medium">
-                              €{Number(result.objective).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              €{Number(dept.objective).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </span>
                           </div>
                         )}
-                        {performance !== null && (
+                        {dept.performancePercentage !== null && (
                           <div className="flex justify-between items-center pt-2">
                             <span className="text-gray-600">Performance:</span>
                             <span
                               className={`font-bold text-lg ${
-                                performance >= 100
-                                  ? 'text-green-600'
-                                  : performance >= 80
-                                  ? 'text-yellow-600'
-                                  : 'text-red-600'
+                                getStatusTextClasses(dept.status)
                               }`}
                             >
-                              {performance.toFixed(1)}%
+                              {dept.performancePercentage.toFixed(1)}%
                             </span>
                           </div>
                         )}
                       </div>
                     )}
                     
-                    {!result && (
+                    {dept.totalRevenue === null && (
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <p className="text-sm text-gray-500 italic">
                           Sem dados para este mês
@@ -229,27 +190,17 @@ export default function DashboardPageClient({
         )
 
       case 'performance-chart':
-        return performanceData.length > 0 ? (
-          <PerformanceChart data={performanceData} />
+        return overview.performanceData.length > 0 ? (
+          <PerformanceChart data={overview.performanceData} />
         ) : null
 
       case 'revenue-chart':
-        return <RevenueChart data={last6Months} />
+        return <RevenueChart data={overview.last6Months} />
 
       case 'department-ranking':
         return (
           <DepartmentRanking
-            departments={departments.map(dept => ({
-              id: dept.id,
-              name: dept.name,
-              code: dept.code
-            }))}
-            results={results.map(r => ({
-              departmentId: r.departmentId,
-              performance: r.performance,
-              totalRevenue: r.totalRevenue,
-              objective: r.objective
-            }))}
+            ranking={overview.ranking}
           />
         )
 
@@ -277,7 +228,13 @@ export default function DashboardPageClient({
             <div className="flex-1">
               <DashboardMonthYearFilter />
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/dashboard/monthly-breakdown?year=${selectedYear}`}
+                className="text-sm text-gray-600 hover:text-red-600 transition-colors"
+              >
+                Visão Mensal Consolidada
+              </Link>
               <RecalculateButton year={selectedYear} />
             </div>
           </div>

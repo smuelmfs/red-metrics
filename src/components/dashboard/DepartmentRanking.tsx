@@ -1,41 +1,14 @@
 'use client'
 
 import { Trophy, Medal, Award } from 'lucide-react'
+import { RankedDepartment } from '@/modules/dashboards'
+import { getStatusBadgeClasses } from '@/lib/ui/status'
 
 interface DepartmentRankingProps {
-  departments: Array<{
-    id: string
-    name: string
-    code: string | null
-  }>
-  results: Array<{
-    departmentId: string
-    performance: number | null
-    totalRevenue: number
-    objective: number | null
-  }>
+  ranking: RankedDepartment[]
 }
 
-export default function DepartmentRanking({ departments, results }: DepartmentRankingProps) {
-  // Criar ranking ordenado por performance (do melhor para o pior)
-  const ranking = departments
-    .map(dept => {
-      const result = results.find(r => r.departmentId === dept.id)
-      return {
-        ...dept,
-        performance: result?.performance ?? null,
-        totalRevenue: result?.totalRevenue ?? 0,
-        objective: result?.objective ?? null
-      }
-    })
-    .filter(dept => dept.performance !== null) // Apenas departamentos com dados
-    .sort((a, b) => {
-      // Ordenar do maior para o menor (melhor performance primeiro)
-      const perfA = a.performance ?? 0
-      const perfB = b.performance ?? 0
-      return perfB - perfA
-    })
-
+export default function DepartmentRanking({ ranking }: DepartmentRankingProps) {
   if (ranking.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
@@ -61,12 +34,6 @@ export default function DepartmentRanking({ departments, results }: DepartmentRa
     }
   }
 
-  const getPerformanceColor = (performance: number) => {
-    if (performance >= 100) return 'text-green-600 bg-green-50'
-    if (performance >= 80) return 'text-yellow-600 bg-yellow-50'
-    return 'text-red-600 bg-red-50'
-  }
-
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
       <div className="p-4 lg:p-6 border-b border-gray-200 bg-gray-50">
@@ -77,7 +44,6 @@ export default function DepartmentRanking({ departments, results }: DepartmentRa
       <div className="divide-y divide-gray-200">
         {ranking.map((dept, index) => {
           const position = index + 1
-          const performance = dept.performance ?? 0
 
           return (
             <div
@@ -107,9 +73,9 @@ export default function DepartmentRanking({ departments, results }: DepartmentRa
                   
                   <div className="flex items-center gap-4 flex-wrap">
                     {/* Performance */}
-                    <div className={`px-3 py-1 rounded-full ${getPerformanceColor(performance)}`}>
+                    <div className={`px-3 py-1 rounded-full ${getStatusBadgeClasses(dept.status)}`}>
                       <span className="text-sm lg:text-base font-bold">
-                        {performance.toFixed(1)}%
+                        {dept.performancePercentage.toFixed(1)}%
                       </span>
                     </div>
 

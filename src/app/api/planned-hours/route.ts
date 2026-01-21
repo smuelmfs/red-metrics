@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { createPlannedHoursSchema } from '@/lib/business-logic/validations'
 import { createAuditLog } from '@/lib/business-logic/audit'
 import { calculateDepartmentResult } from '@/lib/business-logic/calculations'
+import { calculateTargetAvailableHours } from '@/modules/hours'
 
 // GET /api/planned-hours
 export async function GET(request: NextRequest) {
@@ -63,14 +64,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = createPlannedHoursSchema.parse(body)
 
-    // Calcular horas disponíveis se necessário
-    let targetAvailableHours = null
-    if (validatedData.billableHeadcount && validatedData.targetHoursPerMonth && validatedData.targetUtilization) {
-      targetAvailableHours = 
-        validatedData.billableHeadcount * 
-        validatedData.targetHoursPerMonth * 
-        validatedData.targetUtilization
-    }
+    // Calcular horas disponíveis se necessário (regra centralizada em modules/hours)
+    const targetAvailableHours = calculateTargetAvailableHours({
+      billableHeadcount: validatedData.billableHeadcount ?? undefined,
+      targetHoursPerMonth: validatedData.targetHoursPerMonth ?? undefined,
+      targetUtilization: validatedData.targetUtilization ?? undefined
+    })
 
     const plannedHours = await prisma.plannedHours.upsert({
       where: {

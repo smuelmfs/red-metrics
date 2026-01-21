@@ -26,6 +26,25 @@ export default async function PlannedHoursPage({
     orderBy: { name: 'asc' }
   })
 
+  // Serializar departamentos para Client Component
+  const serializedDepartments = departments.map(dept => ({
+    id: dept.id,
+    name: dept.name,
+    code: dept.code,
+    billableHeadcount: dept.billableHeadcount,
+    costPerPersonPerMonth: dept.costPerPersonPerMonth ? Number(dept.costPerPersonPerMonth) : null,
+    targetUtilization: Number(dept.targetUtilization),
+    averageHourlyRate: Number(dept.averageHourlyRate),
+    directCostAnnual: dept.directCostAnnual ? Number(dept.directCostAnnual) : null,
+    billableHoursAnnual: dept.billableHoursAnnual ? Number(dept.billableHoursAnnual) : null,
+    revenueCapacityAnnual: dept.revenueCapacityAnnual ? Number(dept.revenueCapacityAnnual) : null,
+    overheadAllocatedAnnual: dept.overheadAllocatedAnnual ? Number(dept.overheadAllocatedAnnual) : null,
+    minimumRevenueAnnual: dept.minimumRevenueAnnual ? Number(dept.minimumRevenueAnnual) : null,
+    isActive: dept.isActive,
+    createdAt: dept.createdAt.toISOString(),
+    updatedAt: dept.updatedAt.toISOString(),
+  }))
+
   const plannedHours = await prisma.plannedHours.findMany({
     where: {
       month: selectedMonth,
@@ -40,6 +59,24 @@ export default async function PlannedHoursPage({
       }
     }
   })
+
+  // Serializar plannedHours para Client Component
+  const serializedPlannedHours = plannedHours.map(ph => ({
+    id: ph.id,
+    departmentId: ph.departmentId,
+    month: ph.month,
+    year: ph.year,
+    billableHeadcount: ph.billableHeadcount,
+    targetHoursPerMonth: ph.targetHoursPerMonth ? Number(ph.targetHoursPerMonth) : null,
+    targetUtilization: ph.targetUtilization ? Number(ph.targetUtilization) : null,
+    targetAvailableHours: ph.targetAvailableHours ? Number(ph.targetAvailableHours) : null,
+    actualBillableHours: ph.actualBillableHours ? Number(ph.actualBillableHours) : null,
+    actualUtilization: ph.actualUtilization ? Number(ph.actualUtilization) : null,
+    retainerRevenue: ph.retainerRevenue ? Number(ph.retainerRevenue) : null,
+    projectRevenue: ph.projectRevenue ? Number(ph.projectRevenue) : null,
+    totalRevenue: ph.totalRevenue ? Number(ph.totalRevenue) : null,
+    revenuePerHour: ph.revenuePerHour ? Number(ph.revenuePerHour) : null,
+  }))
 
   const months = [
     { value: 1, label: 'Janeiro' },
@@ -77,8 +114,8 @@ export default async function PlannedHoursPage({
           <p className="text-gray-500">Nenhum departamento cadastrado.</p>
         ) : (
           <div className="space-y-4">
-            {departments.map((dept) => {
-              const planned = plannedHours.find(ph => ph.departmentId === dept.id)
+            {serializedDepartments.map((dept) => {
+              const planned = serializedPlannedHours.find(ph => ph.departmentId === dept.id)
               return (
                 <PlannedHoursForm
                   key={dept.id}

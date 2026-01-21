@@ -1,25 +1,63 @@
 'use client'
 
-import { Retainer, Department } from '@prisma/client'
-import { RetainerCatalog } from '@prisma/client'
+import Link from 'next/link'
 
-interface RetainerWithRelations extends Retainer {
+interface SerializedDepartment {
+  id: string
+  name: string
+  code: string | null
+  billableHeadcount: number
+  costPerPersonPerMonth: number | null
+  targetUtilization: number
+  averageHourlyRate: number
+  directCostAnnual: number | null
+  billableHoursAnnual: number | null
+  revenueCapacityAnnual: number | null
+  overheadAllocatedAnnual: number | null
+  minimumRevenueAnnual: number | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+interface SerializedRetainer {
+  id: string
+  departmentId: string
+  catalogId: string | null
+  name: string
+  type: string | null
+  monthlyPrice: number
+  quantity: number
+  monthlyRevenue: number
+  hoursPerMonth: number | null
+  variableCostPerMonth: number | null
+  monthlyChurn: number | null
+  newRetainersPerMonth: number | null
+  startDate: string
+  endDate: string | null
+  isActive: boolean
+  notes: string | null
+  createdAt: string
+  updatedAt: string
   department: { id: string; name: string }
   catalog: { id: string; name: string } | null
 }
 
 interface RetainersListProps {
-  retainers: RetainerWithRelations[]
-  departments: Department[]
+  retainers: SerializedRetainer[]
+  departments: SerializedDepartment[]
+  canEdit?: boolean
 }
 
-export default function RetainersList({ retainers, departments }: RetainersListProps) {
+export default function RetainersList({ retainers, departments, canEdit = false }: RetainersListProps) {
   const retainersByDepartment = departments.map(dept => ({
     department: dept,
     retainers: retainers.filter(r => r.departmentId === dept.id)
   }))
 
-  const totalRevenue = retainers.reduce((sum, r) => sum + Number(r.monthlyRevenue), 0)
+  // Total de receita já calculado no backend (monthlyRevenue já vem calculado)
+  // Apenas somamos para exibição - não é cálculo de regra de negócio
+  const totalRevenue = retainers.reduce((sum, r) => sum + r.monthlyRevenue, 0)
 
   return (
     <div className="space-y-6">
@@ -62,6 +100,11 @@ export default function RetainersList({ retainers, departments }: RetainersListP
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantidade</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Receita Mensal</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Início</th>
+                    {canEdit && (
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        Ações
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -79,6 +122,16 @@ export default function RetainersList({ retainers, departments }: RetainersListP
                       <td className="px-4 py-3 text-sm text-gray-600">
                         {new Date(retainer.startDate).toLocaleDateString('pt-BR')}
                       </td>
+                      {canEdit && (
+                        <td className="px-4 py-3 text-sm text-right">
+                          <Link
+                            href={`/dashboard/retainers/${retainer.id}/edit`}
+                            className="text-red-600 hover:text-red-800 font-medium text-xs sm:text-sm"
+                          >
+                            Editar
+                          </Link>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -88,6 +141,7 @@ export default function RetainersList({ retainers, departments }: RetainersListP
                       Total do Departamento:
                     </td>
                     <td className="px-4 py-3 text-sm font-bold text-gray-900">
+                      {/* Total já calculado no backend - apenas soma para exibição */}
                       €{deptRetainers.reduce((sum, r) => sum + Number(r.monthlyRevenue), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </td>
                     <td></td>

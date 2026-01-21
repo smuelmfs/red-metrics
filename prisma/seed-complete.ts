@@ -1,42 +1,26 @@
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Seeding database with complete fictional data...')
 
-  // 1. Criar usuário admin
-  const hashedPassword = await bcrypt.hash('admin123', 10)
-  
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@redagency.com' },
-    update: {},
-    create: {
-      email: 'admin@redagency.com',
-      name: 'Administrador',
-      password: hashedPassword,
-      role: 'ADMIN'
-    }
-  })
+  // 0. Limpar dados de domínio (preservando usuários / auth)
+  console.log('🧹 Limpando dados de domínio (preservando usuários)...')
 
-  console.log('✅ Admin user created:', admin.email)
+  await prisma.auditLog.deleteMany({})
+  await prisma.result.deleteMany({})
+  await prisma.objective.deleteMany({})
+  await prisma.plannedHours.deleteMany({})
+  await prisma.retainer.deleteMany({})
+  await prisma.retainerCatalog.deleteMany({})
+  await prisma.fixedCost.deleteMany({})
+  await prisma.department.deleteMany({})
+  await prisma.globalSetting.deleteMany({})
 
-  // 2. Criar usuário comum
-  const user = await prisma.user.upsert({
-    where: { email: 'user@redagency.com' },
-    update: {},
-    create: {
-      email: 'user@redagency.com',
-      name: 'Usuário Teste',
-      password: hashedPassword,
-      role: 'USER'
-    }
-  })
+  console.log('✅ Dados de domínio limpos (usuários preservados)')
 
-  console.log('✅ User created:', user.email)
-
-  // 3. Criar configurações globais
+  // 1. Criar configurações globais
   const settings = [
     {
       key: 'targetMargin',
@@ -75,7 +59,7 @@ async function main() {
 
   console.log('✅ Global settings created')
 
-  // 4. Criar Departamentos
+  // 2. Criar Departamentos
   const departmentsData = [
     {
       name: 'Branding & Design',
@@ -136,14 +120,14 @@ async function main() {
     console.log(`✅ Department: ${dept.name}`)
   }
 
-  // 5. Calcular métricas anuais dos departamentos
+  // 3. Calcular métricas anuais dos departamentos
   const { calculateDepartmentAnnualMetrics } = await import('../src/lib/business-logic/calculations')
   for (const deptId of departmentMap.values()) {
     await calculateDepartmentAnnualMetrics(deptId)
   }
   console.log('✅ Department annual metrics calculated')
 
-  // 6. Criar Catálogo de Avenças
+  // 4. Criar Catálogo de Avenças
   const catalogData = [
     {
       name: 'Gestão Redes Sociais - Básico',
@@ -198,6 +182,13 @@ async function main() {
     const departmentId = departmentMap.get(catalogItem.departmentName)
     if (!departmentId) continue
 
+    // Calcular custo mensal e margem (mesma lógica da API)
+    const monthlyCost = catalogItem.internalHourlyCost * catalogItem.hoursPerMonth
+    const monthlyMargin = catalogItem.monthlyPrice - monthlyCost
+    const marginPercentage = catalogItem.monthlyPrice > 0
+      ? (monthlyMargin / catalogItem.monthlyPrice) * 100
+      : 0
+
     const catalog = await prisma.retainerCatalog.upsert({
       where: { name: catalogItem.name },
       update: {
@@ -205,6 +196,9 @@ async function main() {
         monthlyPrice: catalogItem.monthlyPrice,
         hoursPerMonth: catalogItem.hoursPerMonth,
         internalHourlyCost: catalogItem.internalHourlyCost,
+        monthlyCost,
+        monthlyMargin,
+        marginPercentage,
         baseHours: catalogItem.baseHours,
         basePrice: catalogItem.basePrice
       },
@@ -214,6 +208,9 @@ async function main() {
         monthlyPrice: catalogItem.monthlyPrice,
         hoursPerMonth: catalogItem.hoursPerMonth,
         internalHourlyCost: catalogItem.internalHourlyCost,
+        monthlyCost,
+        monthlyMargin,
+        marginPercentage,
         baseHours: catalogItem.baseHours,
         basePrice: catalogItem.basePrice,
         isActive: true
@@ -223,7 +220,63 @@ async function main() {
     console.log(`✅ Catalog: ${catalog.name}`)
   }
 
-  // 7. Criar Avenças Ativas
+  // 5. Criar Custos Fixos Mensais da Empresa (Gastos)
+  const fixedCostsData = [
+    {
+      name: 'Aluguel Escritório Lisboa',
+      category: 'Aluguel',
+      monthlyAmount: 3500,
+      description: 'Escritório principal em Lisboa',
+    },
+    {
+      name: 'Eletricidade, Água e Internet',
+      category: 'Utilidades',
+      monthlyAmount: 850,
+      description: 'Custos de luz, água e internet do escritório',
+    },
+    {
+      name: 'Softwares de Produtividade',
+      category: 'Software',
+      monthlyAmount: 1200,
+      description: 'Licenças Adobe, Notion, Google Workspace, Slack, etc.',
+    },
+    {
+      name: 'Softwares de Marketing',
+      category: 'Software',
+      monthlyAmount: 900,
+      description: 'Ferramentas de automação, analytics e gestão de campanhas',
+    },
+    {
+      name: 'Viaturas Comerciais',
+      category: 'Viaturas',
+      monthlyAmount: 600,
+      description: 'Leasing e despesas fixas de viaturas',
+    },
+    {
+      name: 'Outros Custos Operacionais',
+      category: 'Outros',
+      monthlyAmount: 750,
+      description: 'Seguros, contabilidade e outras despesas recorrentes',
+    }
+  ]
+
+  const now = new Date()
+
+  for (const cost of fixedCostsData) {
+    await prisma.fixedCost.create({
+      data: {
+        name: cost.name,
+        category: cost.category as any,
+        monthlyAmount: cost.monthlyAmount,
+        description: cost.description,
+        isActive: true,
+        startDate: now,
+        endDate: null
+      }
+    })
+  }
+
+  // 6. Criar Avenças Ativas
   const currentDate = new Date()
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth() + 1
@@ -341,7 +394,7 @@ async function main() {
     console.log(`✅ Retainer: ${retainerData.name} (${retainerData.quantity}x €${monthlyPrice}/mês)`)
   }
 
-  // 8. Criar Horas Planejadas e Objetivos para os últimos 6 meses
+  // 7. Criar Horas Planejadas e Objetivos para os últimos 6 meses
   const monthsToFill = 6
   const startMonth = currentMonth - monthsToFill + 1
   const startYear = startMonth <= 0 ? currentYear - 1 : currentYear
@@ -431,7 +484,7 @@ async function main() {
     console.log(`✅ Data for ${month}/${year} created`)
   }
 
-  // 9. Calcular Resultados para os meses preenchidos
+  // 8. Calcular Resultados para os meses preenchidos
   const { calculateDepartmentResult } = await import('../src/lib/business-logic/calculations')
   
   for (let i = 0; i < monthsToFill; i++) {
@@ -456,15 +509,13 @@ async function main() {
 
   console.log('\n🎉 Seeding completed!')
   console.log(`\n📊 Resumo:`)
-  console.log(`   - Usuários: 2 (admin + user)`)
+  console.log(`   - Usuários preservados (nenhum usuário criado/alterado)`)
   console.log(`   - Configurações Globais: ${settings.length}`)
   console.log(`   - Departamentos: ${departmentMap.size}`)
   console.log(`   - Catálogo Avenças: ${catalogMap.size}`)
+  console.log(`   - Custos Fixos: ${fixedCostsData.length}`)
   console.log(`   - Avenças Ativas: ${retainersData.length}`)
   console.log(`   - Meses com dados: ${monthsToFill}`)
-  console.log(`\n🔑 Credenciais:`)
-  console.log(`   Admin: admin@redagency.com / admin123`)
-  console.log(`   User: user@redagency.com / admin123`)
 }
 
 main()

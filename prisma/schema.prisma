@@ -15,14 +15,14 @@ datasource db {
 
 // User & Auth
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  name          String?
-  password      String   // Hashed password
-  role          Role     @default(USER)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  auditLogs     AuditLog[]
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  password  String // Hashed password
+  role      Role       @default(USER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  auditLogs AuditLog[]
 
   @@index([email])
 }
@@ -34,14 +34,36 @@ enum Role {
 
 // Global Settings (da aba Inputs)
 model GlobalSetting {
-  id            String   @id @default(cuid())
-  key           String   @unique
-  value         String
-  description   String?
-  updatedAt     DateTime @updatedAt
-  updatedBy     String?
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
 
   @@index([key])
+}
+
+// Fixed Costs (Custos Fixos Mensais da Empresa - da aba Inputs)
+// Ex: Aluguel, Escritórios, Luz, Softwares, Viaturas, etc.
+model FixedCost {
+  id            String    @id @default(cuid())
+  name          String // Nome do custo (ex: "Aluguel Escritório Lisboa")
+  category      String // Categoria (ex: "Aluguel", "Utilidades", "Software", "Viaturas", "Outros")
+  monthlyAmount Decimal   @db.Decimal(12, 2) // Valor mensal em €
+  description   String?   @db.Text
+  isActive      Boolean   @default(true)
+  startDate     DateTime  @default(now()) // Data de início
+  endDate       DateTime? // Data de término (null = permanente)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditLogs AuditLog[]
+
+  @@index([category])
+  @@index([isActive])
+  @@index([startDate, endDate])
 }
 
 // Departments (da aba Depts)
@@ -49,60 +71,60 @@ model Department {
   id                    String   @id @default(cuid())
   name                  String   @unique
   code                  String?  @unique
-  billableHeadcount     Int      // HC faturável (pessoas)
+  billableHeadcount     Int // HC faturável (pessoas)
   costPerPersonPerMonth Decimal? @db.Decimal(10, 2)
   targetUtilization     Decimal  @default(0.65) @db.Decimal(5, 4) // 0.65 = 65%
   averageHourlyRate     Decimal  @db.Decimal(10, 2) // Taxa média €/h
-  
+
   // Calculados (não editáveis diretamente)
-  directCostAnnual      Decimal? @db.Decimal(12, 2)
-  billableHoursAnnual   Decimal? @db.Decimal(10, 2)
-  revenueCapacityAnnual Decimal? @db.Decimal(12, 2)
+  directCostAnnual        Decimal? @db.Decimal(12, 2)
+  billableHoursAnnual     Decimal? @db.Decimal(10, 2)
+  revenueCapacityAnnual   Decimal? @db.Decimal(12, 2)
   overheadAllocatedAnnual Decimal? @db.Decimal(12, 2)
-  minimumRevenueAnnual  Decimal? @db.Decimal(12, 2) // Objetivo mínimo
-  
-  isActive              Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  plannedHours          PlannedHours[]
-  objectives            Objective[]
-  retainers             Retainer[]
-  retainerCatalog       RetainerCatalog[]
-  results               Result[]
-  auditLogs             AuditLog[]
+  minimumRevenueAnnual    Decimal? @db.Decimal(12, 2) // Objetivo mínimo
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plannedHours    PlannedHours[]
+  objectives      Objective[]
+  retainers       Retainer[]
+  retainerCatalog RetainerCatalog[]
+  results         Result[]
+  auditLogs       AuditLog[]
 
   @@index([isActive])
 }
 
 // Monthly Planned Hours (da aba Horas Faturáveis – Dept)
 model PlannedHours {
-  id                    String   @id @default(cuid())
-  departmentId          String
-  month                 Int      // 1-12
-  year                  Int
-  
+  id           String @id @default(cuid())
+  departmentId String
+  month        Int // 1-12
+  year         Int
+
   // Inputs (editáveis)
-  billableHeadcount     Int?     // HC faturável no mês
-  targetHoursPerMonth   Decimal? @db.Decimal(10, 2) // Horas/mês padrão
-  targetUtilization     Decimal? @db.Decimal(5, 4)
-  targetAvailableHours  Decimal? @db.Decimal(10, 2) // Calculado: HC * horas/mês * utilização
-  
+  billableHeadcount    Int? // HC faturável no mês
+  targetHoursPerMonth  Decimal? @db.Decimal(10, 2) // Horas/mês padrão
+  targetUtilization    Decimal? @db.Decimal(5, 4)
+  targetAvailableHours Decimal? @db.Decimal(10, 2) // Calculado: HC * horas/mês * utilização
+
   // Real hours (do Odoo ou manual)
-  actualBillableHours   Decimal? @db.Decimal(10, 2) // Horas faturáveis registadas (Odoo)
-  actualUtilization     Decimal? @db.Decimal(5, 4) // % Utilização (real)
-  
+  actualBillableHours Decimal? @db.Decimal(10, 2) // Horas faturáveis registadas (Odoo)
+  actualUtilization   Decimal? @db.Decimal(5, 4) // % Utilização (real)
+
   // Revenue
-  retainerRevenue       Decimal? @db.Decimal(12, 2) // Receita recorrente (avenças)
-  projectRevenue        Decimal? @db.Decimal(12, 2) // Receita projetos faturada
-  totalRevenue          Decimal? @db.Decimal(12, 2) // Receita total
-  revenuePerHour        Decimal? @db.Decimal(10, 2) // Receita/hora (real)
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  department            Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  
+  retainerRevenue Decimal? @db.Decimal(12, 2) // Receita recorrente (avenças)
+  projectRevenue  Decimal? @db.Decimal(12, 2) // Receita projetos faturada
+  totalRevenue    Decimal? @db.Decimal(12, 2) // Receita total
+  revenuePerHour  Decimal? @db.Decimal(10, 2) // Receita/hora (real)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
   @@unique([departmentId, month, year])
   @@index([departmentId, year, month])
   @@index([year, month])
@@ -110,16 +132,16 @@ model PlannedHours {
 
 // Objectives (objetivos mínimos mensais)
 model Objective {
-  id            String   @id @default(cuid())
+  id           String   @id @default(cuid())
   departmentId String
-  month         Int
-  year          Int
-  targetValue   Decimal  @db.Decimal(12, 2) // Objetivo mínimo em €
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  department    Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  
+  month        Int
+  year         Int
+  targetValue  Decimal  @db.Decimal(12, 2) // Objetivo mínimo em €
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
   @@unique([departmentId, month, year])
   @@index([departmentId, year, month])
   @@index([year, month])
@@ -127,23 +149,23 @@ model Objective {
 
 // Retainer Catalog (da aba Catálogo Avenças)
 model RetainerCatalog {
-  id                String   @id @default(cuid())
-  name              String   @unique
-  departmentId     String
-  monthlyPrice      Decimal  @db.Decimal(10, 2)
-  hoursPerMonth     Decimal  @db.Decimal(10, 2)
+  id                 String   @id @default(cuid())
+  name               String   @unique
+  departmentId       String
+  monthlyPrice       Decimal  @db.Decimal(10, 2)
+  hoursPerMonth      Decimal  @db.Decimal(10, 2)
   internalHourlyCost Decimal? @db.Decimal(10, 2)
-  monthlyCost       Decimal? @db.Decimal(10, 2)
-  monthlyMargin     Decimal? @db.Decimal(10, 2)
-  marginPercentage  Decimal? @db.Decimal(5, 2)
-  baseHours         Decimal? @db.Decimal(10, 2)
-  basePrice         Decimal? @db.Decimal(10, 2)
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  department        Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  retainers         Retainer[]
+  monthlyCost        Decimal? @db.Decimal(10, 2)
+  monthlyMargin      Decimal? @db.Decimal(10, 2)
+  marginPercentage   Decimal? @db.Decimal(5, 2)
+  baseHours          Decimal? @db.Decimal(10, 2)
+  basePrice          Decimal? @db.Decimal(10, 2)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  retainers  Retainer[]
 
   @@index([departmentId])
   @@index([isActive])
@@ -151,33 +173,33 @@ model RetainerCatalog {
 
 // Active Retainers (da aba Avenças)
 model Retainer {
-  id                String   @id @default(cuid())
-  departmentId      String
-  catalogId         String?  // Referência ao catálogo
-  name              String   // Nome do cliente/projeto
-  type              String?  // Tipo de avença/contrato
-  monthlyPrice      Decimal  @db.Decimal(10, 2)
-  quantity          Int      @default(1) // Qtd (ativa)
-  monthlyRevenue    Decimal  @db.Decimal(12, 2) // Calculado: price * quantity
-  
-  hoursPerMonth     Decimal? @db.Decimal(10, 2) // Horas/mês (entrega)
+  id             String  @id @default(cuid())
+  departmentId   String
+  catalogId      String? // Referência ao catálogo
+  name           String // Nome do cliente/projeto
+  type           String? // Tipo de avença/contrato
+  monthlyPrice   Decimal @db.Decimal(10, 2)
+  quantity       Int     @default(1) // Qtd (ativa)
+  monthlyRevenue Decimal @db.Decimal(12, 2) // Calculado: price * quantity
+
+  hoursPerMonth        Decimal? @db.Decimal(10, 2) // Horas/mês (entrega)
   variableCostPerMonth Decimal? @db.Decimal(10, 2) // Custo variável/mês
-  
+
   // Growth model
-  monthlyChurn      Decimal? @default(0.03) @db.Decimal(5, 4) // Churn mensal (ex.: 0,03)
-  newRetainersPerMonth Int?   @default(0) // Novas avenças / mês
-  
-  startDate         DateTime
-  endDate           DateTime?
-  isActive          Boolean  @default(true)
-  notes             String?  @db.Text
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  department        Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  catalog           RetainerCatalog? @relation(fields: [catalogId], references: [id], onDelete: SetNull)
-  
+  monthlyChurn         Decimal? @default(0.03) @db.Decimal(5, 4) // Churn mensal (ex.: 0,03)
+  newRetainersPerMonth Int?     @default(0) // Novas avenças / mês
+
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+  notes     String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  department Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  catalog    RetainerCatalog? @relation(fields: [catalogId], references: [id], onDelete: SetNull)
+
   @@index([departmentId, isActive])
   @@index([isActive, startDate])
   @@index([startDate, endDate])
@@ -185,33 +207,33 @@ model Retainer {
 
 // Calculated Results (read-only, computed)
 model Result {
-  id                String   @id @default(cuid())
-  departmentId      String
-  month             Int
-  year              Int
-  
+  id           String @id @default(cuid())
+  departmentId String
+  month        Int
+  year         Int
+
   // Inputs (snapshot)
-  plannedHours      Decimal? @db.Decimal(10, 2)
-  actualHours        Decimal? @db.Decimal(10, 2)
-  hourlyRate         Decimal  @db.Decimal(10, 2)
-  activeRetainers   Decimal  @db.Decimal(12, 2) // Sum of active retainers
-  projectRevenue     Decimal? @db.Decimal(12, 2)
-  
+  plannedHours    Decimal? @db.Decimal(10, 2)
+  actualHours     Decimal? @db.Decimal(10, 2)
+  hourlyRate      Decimal  @db.Decimal(10, 2)
+  activeRetainers Decimal  @db.Decimal(12, 2) // Sum of active retainers
+  projectRevenue  Decimal? @db.Decimal(12, 2)
+
   // Calculated
-  revenueFromHours   Decimal? @db.Decimal(12, 2) // actualHours * hourlyRate
-  totalRevenue       Decimal  @db.Decimal(12, 2) // revenueFromHours + activeRetainers + projectRevenue
-  
+  revenueFromHours Decimal? @db.Decimal(12, 2) // actualHours * hourlyRate
+  totalRevenue     Decimal  @db.Decimal(12, 2) // revenueFromHours + activeRetainers + projectRevenue
+
   // Comparison
-  objective          Decimal? @db.Decimal(12, 2) // Objective.targetValue if exists
-  performance        Decimal? @db.Decimal(5, 2)  // (totalRevenue / objective) * 100
-  utilizationRate   Decimal? @db.Decimal(5, 4)   // actualHours / availableHours
-  
+  objective       Decimal? @db.Decimal(12, 2) // Objective.targetValue if exists
+  performance     Decimal? @db.Decimal(5, 2) // (totalRevenue / objective) * 100
+  utilizationRate Decimal? @db.Decimal(5, 4) // actualHours / availableHours
+
   // Metadata
-  calculatedAt      DateTime @default(now())
-  calculatedBy      String?  // User ID or "system"
-  
-  department        Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  
+  calculatedAt DateTime @default(now())
+  calculatedBy String? // User ID or "system"
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
   @@unique([departmentId, month, year])
   @@index([departmentId, year, month])
   @@index([year, month])
@@ -219,22 +241,23 @@ model Result {
 
 // Audit Trail
 model AuditLog {
-  id            String   @id @default(cuid())
-  userId        String
-  entityType    String   // "Department", "Objective", "PlannedHours", "Retainer", etc.
-  entityId      String
-  action        String   // "CREATE", "UPDATE", "DELETE"
-  oldValue      Json?
-  newValue      Json?
-  createdAt     DateTime @default(now())
-  
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String
+  entityType String // "Department", "Objective", "PlannedHours", "Retainer", etc.
+  entityId   String
+  action     String // "CREATE", "UPDATE", "DELETE"
+  oldValue   Json?
+  newValue   Json?
+  createdAt  DateTime @default(now())
+
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   departmentId String?
-  
+  FixedCost    FixedCost?  @relation(fields: [fixedCostId], references: [id])
+  fixedCostId  String?
+
   @@index([entityType, entityId])
   @@index([createdAt])
   @@index([userId])
   @@index([departmentId])
 }
-

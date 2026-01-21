@@ -1,15 +1,49 @@
 'use client'
 
 import { useState } from 'react'
-import { Department, PlannedHours } from '@prisma/client'
 import { useToast } from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
 
-interface PlannedHoursFormProps {
-  department: Department
+interface SerializedDepartment {
+  id: string
+  name: string
+  code: string | null
+  billableHeadcount: number
+  costPerPersonPerMonth: number | null
+  targetUtilization: number
+  averageHourlyRate: number
+  directCostAnnual: number | null
+  billableHoursAnnual: number | null
+  revenueCapacityAnnual: number | null
+  overheadAllocatedAnnual: number | null
+  minimumRevenueAnnual: number | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+interface SerializedPlannedHours {
+  id?: string
+  departmentId: string
   month: number
   year: number
-  initialData?: PlannedHours
+  billableHeadcount?: number | null
+  targetHoursPerMonth?: number | null
+  targetUtilization?: number | null
+  targetAvailableHours?: number | null
+  actualBillableHours?: number | null
+  actualUtilization?: number | null
+  retainerRevenue?: number | null
+  projectRevenue?: number | null
+  totalRevenue?: number | null
+  revenuePerHour?: number | null
+}
+
+interface PlannedHoursFormProps {
+  department: SerializedDepartment
+  month: number
+  year: number
+  initialData?: SerializedPlannedHours
 }
 
 export default function PlannedHoursForm({ department, month, year, initialData }: PlannedHoursFormProps) {
@@ -57,7 +91,8 @@ export default function PlannedHoursForm({ department, month, year, initialData 
     }
   }
 
-  const targetAvailableHours = formData.billableHeadcount && formData.targetHoursPerMonth && formData.targetUtilization
+  // Preview da capacidade (apenas visualização - cálculo real é feito no backend via módulo hours)
+  const targetAvailableHoursPreview = formData.billableHeadcount && formData.targetHoursPerMonth && formData.targetUtilization
     ? Number(formData.billableHeadcount) * Number(formData.targetHoursPerMonth) * Number(formData.targetUtilization)
     : null
 
@@ -130,9 +165,10 @@ export default function PlannedHoursForm({ department, month, year, initialData 
           </label>
           <input
             type="text"
-            value={targetAvailableHours ? Math.round(targetAvailableHours) : 'Calculado automaticamente'}
+            value={targetAvailableHoursPreview ? Math.round(targetAvailableHoursPreview) : 'Calculado automaticamente'}
             disabled
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded bg-gray-50 text-gray-600"
+            title="Preview - cálculo real é feito no backend via módulo hours"
           />
         </div>
 

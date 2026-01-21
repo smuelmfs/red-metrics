@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -29,12 +28,49 @@ interface ExtractedData {
     quantity: number
     notes: string | null
   }>
+  plannedHours: Array<{
+    departmentName: string
+    month: number
+    year: number
+    billableHeadcount: number | null
+    actualBillableHours: number | null
+    projectRevenue: number | null
+  }>
+  globalSettings: Array<{
+    key: string
+    value: string
+    description?: string | null
+  }>
+  fixedCosts: Array<{
+    name: string
+    category: string
+    monthlyAmount: number
+    description: string | null
+    startDate: string
+    endDate: string | null
+  }>
 }
 
 async function main() {
   console.log('🌱 Seeding database with real data from Excel...')
 
-  // Ler dados extraídos
+  // 0. Limpar dados de domínio (preservando usuários/autenticação)
+  console.log('🧹 Limpando dados de domínio (preservando usuários)...')
+
+  // Ordem de deleção: filhos → pais
+  await prisma.auditLog.deleteMany({})
+  await prisma.result.deleteMany({})
+  await prisma.objective.deleteMany({})
+  await prisma.plannedHours.deleteMany({})
+  await prisma.retainer.deleteMany({})
+  await prisma.retainerCatalog.deleteMany({})
+  await prisma.fixedCost.deleteMany({})
+  await prisma.department.deleteMany({})
+  await prisma.globalSetting.deleteMany({})
+
+  console.log('✅ Dados de domínio limpos (usuários preservados)')
+
+  // 1. Ler dados extraídos
   const dataPath = path.join(__dirname, '..', 'extracted-data.json')
   if (!fs.existsSync(dataPath)) {
     console.error('❌ Arquivo extracted-data.json não encontrado!')
@@ -44,52 +80,42 @@ async function main() {
 
   const extractedData: ExtractedData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'))
 
-  // 1. Criar usuário admin padrão
-  const hashedPassword = await bcrypt.hash('admin123', 10)
-  
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@redagency.com' },
-    update: {},
-    create: {
-      email: 'admin@redagency.com',
-      name: 'Administrador',
-      password: hashedPassword,
-      role: 'ADMIN'
-    }
-  })
+  // 2. Criar configurações globais (prioriza valores da planilha, com fallback)
+  console.log('\n📋 Criando Configurações Globais...')
 
-  console.log('✅ Admin user created:', admin.email)
-
-  // 2. Criar configurações globais
-  const settings = [
-    {
-      key: 'targetMargin',
+  const defaults = {
+    targetMargin: {
       value: '0.3',
       description: 'Margem alvo (ex.: 0,30 = 30%)'
     },
-    {
-      key: 'hoursPerMonth',
+    hoursPerMonth: {
       value: '160',
       description: 'Horas de trabalho por mês'
     },
-    {
-      key: 'targetUtilization',
+    targetUtilization: {
       value: '0.65',
       description: 'Utilização faturável média (ex.: 0,65 = 65%)'
     },
-    {
-      key: 'costPerPersonPerMonth',
+    costPerPersonPerMonth: {
       value: '2200',
       description: 'Custo médio por pessoa / mês (empresa)'
     },
-    {
-      key: 'overheadPeople',
+    overheadPeople: {
       value: '6',
       description: 'Nº pessoas NÃO faturáveis (overhead)'
     }
-  ]
+  } as const
 
-  for (const setting of settings) {
+  const keys = Object.keys(defaults) as Array<keyof typeof defaults>
+
+  for (const key of keys) {
+    const fromSheet = extractedData.globalSettings.find(s => s.key === key)
+    const setting = {
+      key,
+      value: fromSheet?.value ?? defaults[key].value,
+      description: fromSheet?.description ?? defaults[key].description
+    }
+
     await prisma.globalSetting.upsert({
       where: { key: setting.key },
       update: { value: setting.value },
@@ -98,6 +124,11 @@ async function main() {
   }
 
   console.log('✅ Global settings created')
+
+  // Carregar configurações numéricas para uso posterior
+  const companySettings = await prisma.globalSetting.findMany()
+  const hoursPerMonthSetting = companySettings.find(s => s.key === 'hoursPerMonth')
+  const hoursPerMonth = hoursPerMonthSetting ? parseFloat(hoursPerMonthSetting.value) : 160
 
   // 3. Criar Departamentos
   console.log('\n📋 Criando Departamentos...')
@@ -250,11 +281,155 @@ async function main() {
     console.log('\n📋 Nenhuma avença ativa encontrada na planilha (todas com quantidade 0)')
   }
 
+  // 6. Criar Custos Fixos
+  console.log('\n📋 Criando Custos Fixos...')
+  let fixedCostsCreated = 0
+  for (const cost of extractedData.fixedCosts) {
+    try {
+      await prisma.fixedCost.create({
+        data: {
+          name: cost.name,
+          // category já normalizada no script de extração
+          category: cost.category as any,
+          monthlyAmount: cost.monthlyAmount,
+          description: cost.description,
+          startDate: new Date(cost.startDate),
+          endDate: cost.endDate ? new Date(cost.endDate) : null,
+          isActive: true
+        }
+      })
+      fixedCostsCreated++
+    } catch (e) {
+      console.log(`   ⚠️  Erro ao criar custo fixo "${cost.name}":`, (e as Error).message)
+    }
+  }
+  console.log(`✅ Custos fixos criados: ${fixedCostsCreated}`)
+
+  // 7. Criar Horas Planejadas
+  console.log('\n📋 Criando Horas Planejadas...')
+  const plannedHoursSummary = new Set<string>()
+
+  for (const ph of extractedData.plannedHours) {
+    const departmentId = departmentMap.get(ph.departmentName)
+    if (!departmentId) {
+      console.log(`   ⚠️  Departamento não encontrado para horas: ${ph.departmentName}`)
+      continue
+    }
+
+    const dept = await prisma.department.findUnique({ where: { id: departmentId } })
+    if (!dept) continue
+
+    const billableHeadcount = ph.billableHeadcount ?? dept.billableHeadcount
+    const targetUtilization = Number(dept.targetUtilization)
+    const targetAvailableHours = billableHeadcount * hoursPerMonth * targetUtilization
+
+    await prisma.plannedHours.upsert({
+      where: {
+        departmentId_month_year: {
+          departmentId,
+          month: ph.month,
+          year: ph.year
+        }
+      },
+      update: {
+        billableHeadcount,
+        targetHoursPerMonth: hoursPerMonth,
+        targetUtilization,
+        targetAvailableHours,
+        actualBillableHours: ph.actualBillableHours ?? null,
+        projectRevenue: ph.projectRevenue ?? null
+      },
+      create: {
+        departmentId,
+        month: ph.month,
+        year: ph.year,
+        billableHeadcount,
+        targetHoursPerMonth: hoursPerMonth,
+        targetUtilization,
+        targetAvailableHours,
+        actualBillableHours: ph.actualBillableHours ?? null,
+        projectRevenue: ph.projectRevenue ?? null
+      }
+    })
+
+    plannedHoursSummary.add(`${departmentId}-${ph.year}-${ph.month}`)
+  }
+
+  console.log(`✅ Registros de horas planejadas: ${plannedHoursSummary.size}`)
+
+  // 8. Calcular métricas anuais e criar Objetivos mensais baseados no mínimo anual
+  console.log('\n📋 Calculando métricas anuais e criando Objetivos mensais...')
+
+  const { calculateDepartmentAnnualMetrics, calculateDepartmentResult } = await import('../src/lib/business-logic/calculations')
+
+  const departments = await prisma.department.findMany()
+  const deptAnnualMin: Record<string, number | null> = {}
+
+  for (const dept of departments) {
+    const updated = await calculateDepartmentAnnualMetrics(dept.id)
+    const minimum = updated.minimumRevenueAnnual
+      ? Number(updated.minimumRevenueAnnual)
+      : null
+    deptAnnualMin[dept.id] = minimum
+  }
+
+  // Criar objetivos mensais iguais a (mínimo anual / 12) para cada combinação dept/mês/ano com horas
+  for (const key of plannedHoursSummary) {
+    const [departmentId, yearStr, monthStr] = key.split('-')
+    const year = parseInt(yearStr, 10)
+    const month = parseInt(monthStr, 10)
+
+    const minimum = deptAnnualMin[departmentId]
+    if (!minimum) continue
+
+    const monthlyObjective = minimum / 12
+
+    await prisma.objective.upsert({
+      where: {
+        departmentId_month_year: {
+          departmentId,
+          month,
+          year
+        }
+      },
+      update: {
+        targetValue: monthlyObjective
+      },
+      create: {
+        departmentId,
+        month,
+        year,
+        targetValue: monthlyObjective
+      }
+    })
+  }
+
+  console.log('✅ Objetivos mensais criados/atualizados com base no mínimo anual')
+
+  // 9. Calcular Resultados mensais a partir das horas, avenças e objetivos
+  console.log('\n📋 Calculando Resultados mensais...')
+
+  for (const key of plannedHoursSummary) {
+    const [departmentId, yearStr, monthStr] = key.split('-')
+    const year = parseInt(yearStr, 10)
+    const month = parseInt(monthStr, 10)
+
+    try {
+      await calculateDepartmentResult(departmentId, month, year)
+    } catch (error) {
+      console.error(`   ⚠️  Erro ao calcular resultado para dept ${departmentId}, ${month}/${year}:`, error)
+    }
+  }
+
+  console.log('✅ Resultados mensais calculados')
+
   console.log('\n🎉 Seeding completed!')
   console.log(`\n📊 Resumo:`)
   console.log(`   - Departamentos: ${departmentMap.size}`)
   console.log(`   - Catálogo Avenças: ${catalogMap.size}`)
-  console.log(`   - Avenças Ativas: ${extractedData.retainers.length}`)
+  console.log(`   - Avenças Ativas (linhas na planilha): ${extractedData.retainers.length}`)
+  console.log(`   - Horas Planejadas (combinações dept/mês/ano): ${plannedHoursSummary.size}`)
+  console.log(`   - Custos Fixos: ${fixedCostsCreated}`)
 }
 
 main()

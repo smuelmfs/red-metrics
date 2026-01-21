@@ -4,10 +4,11 @@ import { z } from 'zod'
 export const createDepartmentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   code: z.string().optional(),
-  billableHeadcount: z.number().int().positive('Headcount must be positive'),
-  costPerPersonPerMonth: z.number().positive().optional(),
-  targetUtilization: z.number().min(0).max(1).optional(),
-  averageHourlyRate: z.number().positive('Hourly rate must be positive')
+  // Aceita números enviados como string (ex.: dos inputs HTML)
+  billableHeadcount: z.coerce.number().int().positive('Headcount must be positive'),
+  costPerPersonPerMonth: z.coerce.number().positive().optional(),
+  targetUtilization: z.coerce.number().min(0).max(1).optional(),
+  averageHourlyRate: z.coerce.number().positive('Hourly rate must be positive')
 })
 
 export const updateDepartmentSchema = createDepartmentSchema.partial().extend({
@@ -37,18 +38,18 @@ export const createObjectiveSchema = z.object({
 // Retainer validations
 export const createRetainerSchema = z.object({
   departmentId: z.string().min(1),
-  catalogId: z.string().optional(),
+  catalogId: z.string().nullish(),
   name: z.string().min(1, 'Name is required'),
-  type: z.string().optional(),
-  monthlyPrice: z.number().positive('Monthly price must be positive'),
-  quantity: z.number().int().positive().default(1),
-  hoursPerMonth: z.number().nonnegative().optional(),
-  variableCostPerMonth: z.number().nonnegative().optional(),
-  monthlyChurn: z.number().min(0).max(1).optional(),
-  newRetainersPerMonth: z.number().int().nonnegative().optional(),
+  type: z.string().nullish(),
+  monthlyPrice: z.coerce.number().positive('Monthly price must be positive'),
+  quantity: z.coerce.number().int().positive().default(1),
+  hoursPerMonth: z.coerce.number().nonnegative().nullish(),
+  variableCostPerMonth: z.coerce.number().nonnegative().nullish(),
+  monthlyChurn: z.coerce.number().min(0).max(1).nullish(),
+  newRetainersPerMonth: z.coerce.number().int().nonnegative().nullish(),
   startDate: z.coerce.date(),
-  endDate: z.coerce.date().optional(),
-  notes: z.string().optional()
+  endDate: z.coerce.date().nullish(),
+  notes: z.string().nullish()
 })
 
 // Retainer Catalog validations

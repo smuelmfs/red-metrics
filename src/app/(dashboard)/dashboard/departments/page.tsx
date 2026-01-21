@@ -33,14 +33,22 @@ export default async function DepartmentsPage() {
             Gerencie os departamentos e suas configurações
           </p>
         </div>
-        {(session.user.role === 'ADMIN' || session.user.role === 'MANAGER') && (
+        <div className="flex gap-3">
           <Link
-            href="/dashboard/departments/new"
-            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold text-base shadow-sm"
+            href="/dashboard/departments/annual"
+            className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold text-base shadow-sm"
           >
-            Novo Departamento
+            Visão Anual Consolidada
           </Link>
-        )}
+          {(session.user.role === 'ADMIN' || session.user.role === 'MANAGER') && (
+            <Link
+              href="/dashboard/departments/new"
+              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold text-base shadow-sm"
+            >
+              Novo Departamento
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -102,21 +110,33 @@ export default async function DepartmentsPage() {
                   </span>
                 </td>
                 <td className="px-3 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  {(session.user.role === 'ADMIN' || session.user.role === 'MANAGER') ? (
-                  <Link
-                    href={`/dashboard/departments/${dept.id}/edit`}
-                    className="text-red-600 hover:text-red-800 mr-4 transition-colors"
-                  >
-                    Editar
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/dashboard/departments/${dept.id}`}
-                    className="text-red-600 hover:text-red-800 transition-colors"
-                  >
-                    Ver detalhes
-                  </Link>
-                  )}
+                  <div className="flex gap-2 flex-wrap">
+                    <Link
+                      href={`/dashboard/departments/${dept.id}`}
+                      className="text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      Ver
+                    </Link>
+                    {(session.user.role === 'ADMIN' || session.user.role === 'MANAGER') && (
+                      <>
+                        <Link
+                          href={`/dashboard/departments/${dept.id}/edit`}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                        >
+                          Editar
+                        </Link>
+                        {session.user.role === 'ADMIN' && (
+                          <Link
+                            href={`/dashboard/audit?entityType=Department&entityId=${dept.id}`}
+                            className="text-gray-600 hover:text-gray-800 transition-colors"
+                            title="Ver auditoria deste departamento"
+                          >
+                            Auditoria
+                          </Link>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

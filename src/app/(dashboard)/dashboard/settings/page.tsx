@@ -26,7 +26,7 @@ export default async function SettingsPage() {
       <div className="mb-6 lg:mb-8">
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Configurações Globais</h1>
         <p className="text-sm lg:text-base text-gray-600 mt-1 lg:mt-2">
-          Gerencie as configurações globais do sistema (equivalente à aba "Inputs" da planilha)
+          Gerencie as configurações globais do sistema
         </p>
       </div>
 

@@ -62,6 +62,8 @@ export default function NewRetainerCatalogPage() {
     }
   }
 
+  // Preview de cálculos (apenas visualização - não são regras de negócio)
+  // Os cálculos reais são feitos no backend quando necessário
   const monthlyCost = formData.internalHourlyCost && formData.hoursPerMonth
     ? formData.internalHourlyCost * formData.hoursPerMonth
     : null
