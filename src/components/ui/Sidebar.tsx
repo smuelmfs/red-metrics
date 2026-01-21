@@ -19,7 +19,8 @@ import {
   DollarSign,
   BookOpen,
   List,
-  BarChart3
+  BarChart3,
+  Target
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -71,6 +72,7 @@ export default function Sidebar({ userRole: propUserRole, userName: propUserName
     { href: '/dashboard/departments', label: 'Lista de Departamentos', icon: List },
     { href: '/dashboard/departments/annual', label: 'Visão Anual Consolidada', icon: BarChart3 },
     { href: '/dashboard/planned-hours', label: 'Horas Faturáveis', icon: Clock },
+    { href: '/dashboard/objectives', label: 'Objetivos', icon: Target },
   ]
 
   // Submenu de Avenças
@@ -126,7 +128,7 @@ export default function Sidebar({ userRole: propUserRole, userName: propUserName
           <button
             onClick={() => toggleMenu('departments')}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
-              isActive('/dashboard/departments') || isActive('/dashboard/planned-hours')
+              isActive('/dashboard/departments') || isActive('/dashboard/planned-hours') || isActive('/dashboard/objectives')
                 ? 'bg-red-50 text-red-600 font-semibold'
                 : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
             }`}

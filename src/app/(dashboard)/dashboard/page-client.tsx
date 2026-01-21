@@ -92,8 +92,15 @@ export default function DashboardPageClient({
             <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
               <p className="text-xs lg:text-sm text-gray-600 mb-2">Objetivo Total</p>
               <p className="text-2xl lg:text-3xl font-bold text-gray-900 break-words">
-                €{overview.totalObjective.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {overview.totalObjective > 0 
+                  ? `€${overview.totalObjective.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                  : '€0,00'}
               </p>
+              {overview.totalObjective === 0 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Defina objetivos em "Objetivos Mínimos"
+                </p>
+              )}
             </div>
             <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 sm:col-span-2 lg:col-span-1">
               <p className="text-xs lg:text-sm text-gray-600 mb-2">Performance Geral</p>
@@ -104,6 +111,11 @@ export default function DashboardPageClient({
                   ? `${overview.overallPerformancePercentage.toFixed(1)}%`
                   : 'N/A'}
               </p>
+              {overview.overallPerformancePercentage === null && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Calcule resultados para ver performance
+                </p>
+              )}
             </div>
           </div>
         )
@@ -235,7 +247,7 @@ export default function DashboardPageClient({
               >
                 Visão Mensal Consolidada
               </Link>
-              <RecalculateButton year={selectedYear} />
+              <RecalculateButton year={selectedYear} month={selectedMonth} />
             </div>
           </div>
         </div>

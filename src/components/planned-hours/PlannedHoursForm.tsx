@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
 
@@ -48,6 +49,7 @@ interface PlannedHoursFormProps {
 
 export default function PlannedHoursForm({ department, month, year, initialData }: PlannedHoursFormProps) {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
   const { addToast } = useToast()
   const [formData, setFormData] = useState<{
     billableHeadcount: number | null
@@ -56,12 +58,54 @@ export default function PlannedHoursForm({ department, month, year, initialData 
     actualBillableHours: number | null
     projectRevenue: number | null
   }>({
-    billableHeadcount: initialData?.billableHeadcount ? Number(initialData.billableHeadcount) : department.billableHeadcount,
-    targetHoursPerMonth: initialData?.targetHoursPerMonth ? Number(initialData.targetHoursPerMonth) : 160,
-    targetUtilization: initialData?.targetUtilization ? Number(initialData.targetUtilization) : Number(department.targetUtilization),
-    actualBillableHours: initialData?.actualBillableHours ? Number(initialData.actualBillableHours) : null,
-    projectRevenue: initialData?.projectRevenue ? Number(initialData.projectRevenue) : null
+    billableHeadcount: initialData?.billableHeadcount ?? department.billableHeadcount,
+    targetHoursPerMonth: initialData?.targetHoursPerMonth ?? 160,
+    targetUtilization: initialData?.targetUtilization ?? Number(department.targetUtilization),
+    actualBillableHours: initialData?.actualBillableHours ?? null,
+    projectRevenue: initialData?.projectRevenue ?? null
   })
+
+  // Atualizar formData quando initialData, month ou year mudarem
+  useEffect(() => {
+    if (initialData) {
+      // Há dados salvos para este mês/ano: usar os dados salvos
+      setFormData({
+        billableHeadcount: initialData.billableHeadcount ?? department.billableHeadcount,
+        targetHoursPerMonth: initialData.targetHoursPerMonth ?? 160,
+        targetUtilization: initialData.targetUtilization ?? Number(department.targetUtilization),
+        actualBillableHours: initialData.actualBillableHours ?? null,
+        projectRevenue: initialData.projectRevenue ?? null
+      })
+    } else {
+      // Não há dados salvos para este mês/ano: resetar para valores padrão/vazios
+      setFormData({
+        billableHeadcount: department.billableHeadcount,
+        targetHoursPerMonth: 160,
+        targetUtilization: Number(department.targetUtilization),
+        actualBillableHours: null,
+        projectRevenue: null
+      })
+    }
+  }, [initialData, month, year, department.billableHeadcount, department.targetUtilization])
+
+  // Verificar se houve mudanças nos dados
+  const hasChanges = () => {
+    if (!initialData) return false
+    
+    // Comparar cada campo, tratando null/undefined como equivalentes
+    const normalize = (val: number | null | undefined) => val ?? null
+    
+    return (
+      normalize(formData.billableHeadcount) !== normalize(initialData.billableHeadcount) ||
+      normalize(formData.targetHoursPerMonth) !== normalize(initialData.targetHoursPerMonth) ||
+      normalize(formData.targetUtilization) !== normalize(initialData.targetUtilization) ||
+      normalize(formData.actualBillableHours) !== normalize(initialData.actualBillableHours) ||
+      normalize(formData.projectRevenue) !== normalize(initialData.projectRevenue)
+    )
+  }
+
+  const hasExistingData = !!initialData
+  const hasUnsavedChanges = hasChanges()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,6 +128,8 @@ export default function PlannedHoursForm({ department, month, year, initialData 
       }
 
       addToast('Horas planejadas salvas com sucesso!', 'success')
+      // Recarregar a página para mostrar os dados atualizados
+      router.refresh()
     } catch (error) {
       addToast('Erro ao salvar. Tente novamente.', 'error')
     } finally {
@@ -221,7 +267,7 @@ export default function PlannedHoursForm({ department, month, year, initialData 
                 <span>Salvando...</span>
               </>
             ) : (
-              'Salvar'
+              hasExistingData && hasUnsavedChanges ? 'Salvar Alterações' : 'Salvar'
             )}
           </button>
         </div>

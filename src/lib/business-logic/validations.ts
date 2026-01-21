@@ -56,11 +56,11 @@ export const createRetainerSchema = z.object({
 export const createRetainerCatalogSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   departmentId: z.string().min(1),
-  monthlyPrice: z.number().positive('Monthly price must be positive'),
-  hoursPerMonth: z.number().positive('Hours per month must be positive'),
-  internalHourlyCost: z.number().nonnegative().optional(),
-  baseHours: z.number().positive().optional(),
-  basePrice: z.number().positive().optional()
+  monthlyPrice: z.coerce.number().positive('Monthly price must be positive'),
+  hoursPerMonth: z.coerce.number().positive('Hours per month must be positive'),
+  internalHourlyCost: z.coerce.number().nonnegative().nullish(),
+  baseHours: z.coerce.number().positive().nullish(),
+  basePrice: z.coerce.number().positive().nullish()
 })
 
 // Global Setting validations

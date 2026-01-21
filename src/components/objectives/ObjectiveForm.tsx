@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Department, Objective } from '@prisma/client'
 import { useToast } from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
@@ -14,10 +15,31 @@ interface ObjectiveFormProps {
 
 export default function ObjectiveForm({ department, month, year, initialData }: ObjectiveFormProps) {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
   const { addToast } = useToast()
-  const [targetValue, setTargetValue] = useState(
-    initialData ? Number(initialData.targetValue) : Number(department.minimumRevenueAnnual) / 12 || 0
+  const [targetValue, setTargetValue] = useState<number | null>(
+    initialData ? Number(initialData.targetValue) : null
   )
+
+  // Atualizar targetValue quando initialData, month ou year mudarem
+  useEffect(() => {
+    if (initialData) {
+      // Há dados salvos para este mês/ano: usar os dados salvos
+      setTargetValue(Number(initialData.targetValue))
+    } else {
+      // Não há dados salvos para este mês/ano: resetar para vazio
+      setTargetValue(null)
+    }
+  }, [initialData, month, year])
+
+  // Verificar se houve mudanças nos dados
+  const hasChanges = () => {
+    if (!initialData) return targetValue !== null && targetValue !== 0
+    return targetValue !== Number(initialData.targetValue)
+  }
+
+  const hasExistingData = !!initialData
+  const hasUnsavedChanges = hasChanges()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,6 +62,8 @@ export default function ObjectiveForm({ department, month, year, initialData }: 
       }
 
       addToast('Objetivo salvo com sucesso!', 'success')
+      // Recarregar a página para mostrar os dados atualizados
+      router.refresh()
     } catch (error) {
       addToast('Erro ao salvar. Tente novamente.', 'error')
     } finally {
@@ -69,7 +93,7 @@ export default function ObjectiveForm({ department, month, year, initialData }: 
               Objetivo Mínimo Mensal (€)
             </label>
             <span className="text-sm font-semibold text-gray-600">
-              €{targetValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {targetValue !== null ? `€${targetValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
             </span>
           </div>
           <input
@@ -77,8 +101,11 @@ export default function ObjectiveForm({ department, month, year, initialData }: 
             min="0"
             step="0.01"
             required
-            value={targetValue}
-            onChange={(e) => setTargetValue(parseFloat(e.target.value) || 0)}
+            value={targetValue ?? ''}
+            onChange={(e) => {
+              const value = e.target.value
+              setTargetValue(value ? parseFloat(value) : null)
+            }}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
           />
         </div>
@@ -95,7 +122,7 @@ export default function ObjectiveForm({ department, month, year, initialData }: 
                 <span>Salvando...</span>
               </>
             ) : (
-              'Salvar Objetivo'
+              hasExistingData && hasUnsavedChanges ? 'Salvar Alterações' : 'Salvar Objetivo'
             )}
           </button>
         </div>

@@ -21,6 +21,54 @@ export default async function SettingsPage() {
     orderBy: { key: 'asc' }
   })
 
+  // Se ainda não houver configurações no banco, mostrar inputs vazios
+  const hasSettings = settings.length > 0
+
+  const initialSettings = hasSettings
+    ? settings
+    : [
+        {
+          id: 'temp-targetMargin',
+          key: 'targetMargin',
+          value: '',
+          description: 'Margem alvo (ex.: 0,30 = 30%)',
+          updatedAt: new Date(),
+          updatedBy: null
+        },
+        {
+          id: 'temp-hoursPerMonth',
+          key: 'hoursPerMonth',
+          value: '',
+          description: 'Horas de trabalho por mês',
+          updatedAt: new Date(),
+          updatedBy: null
+        },
+        {
+          id: 'temp-targetUtilization',
+          key: 'targetUtilization',
+          value: '',
+          description: 'Utilização faturável média (ex.: 0,65 = 65%)',
+          updatedAt: new Date(),
+          updatedBy: null
+        },
+        {
+          id: 'temp-costPerPersonPerMonth',
+          key: 'costPerPersonPerMonth',
+          value: '',
+          description: 'Custo médio por pessoa / mês (empresa)',
+          updatedAt: new Date(),
+          updatedBy: null
+        },
+        {
+          id: 'temp-overheadPeople',
+          key: 'overheadPeople',
+          value: '',
+          description: 'Nº pessoas NÃO faturáveis (overhead)',
+          updatedAt: new Date(),
+          updatedBy: null
+        }
+      ]
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="mb-6 lg:mb-8">
@@ -30,7 +78,7 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <SettingsForm initialSettings={settings} />
+      <SettingsForm initialSettings={initialSettings as any} />
     </div>
   )
 }

@@ -33,6 +33,101 @@ export async function GET() {
   }
 }
 
+// POST - Criar / substituir configurações em massa
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    }
+
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
+    }
+
+    const body = await request.json()
+    const { settings } = body as { settings: { key: string; value: string; description?: string | null }[] }
+
+    if (!Array.isArray(settings) || settings.length === 0) {
+      return NextResponse.json(
+        { error: 'Nenhuma configuração recebida. Esperado array \"settings\" com pelo menos um item.' },
+        { status: 400 }
+      )
+    }
+
+    const upserted: any[] = []
+
+    for (const rawSetting of settings) {
+      const validated = createGlobalSettingSchema.parse(rawSetting)
+
+      const existing = await prisma.globalSetting.findUnique({
+        where: { key: validated.key }
+      })
+
+      if (existing) {
+        const updated = await prisma.globalSetting.update({
+          where: { key: validated.key },
+          data: {
+            value: validated.value,
+            description: validated.description,
+            updatedBy: session.user.id
+          }
+        })
+
+        await createAuditLog({
+          userId: session.user.id,
+          entityType: 'GlobalSetting',
+          entityId: updated.id,
+          action: 'UPDATE',
+          oldValue: { value: existing.value, description: existing.description },
+          newValue: { value: updated.value, description: updated.description }
+        })
+
+        upserted.push(updated)
+      } else {
+        const created = await prisma.globalSetting.create({
+          data: {
+            key: validated.key,
+            value: validated.value,
+            description: validated.description,
+            updatedBy: session.user.id
+          }
+        })
+
+        await createAuditLog({
+          userId: session.user.id,
+          entityType: 'GlobalSetting',
+          entityId: created.id,
+          action: 'CREATE',
+          newValue: { value: created.value, description: created.description }
+        })
+
+        upserted.push(created)
+      }
+    }
+
+    return NextResponse.json({
+      message: 'Configurações criadas/atualizadas com sucesso',
+      settings: upserted
+    })
+  } catch (error: any) {
+    console.error('Error creating global settings:', error)
+
+    if (error.name === 'ZodError') {
+      return NextResponse.json(
+        { error: 'Dados inválidos', details: error.errors },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: 'Erro ao criar configurações' },
+      { status: 500 }
+    )
+  }
+}
+
 // PATCH - Atualizar configurações
 export async function PATCH(request: NextRequest) {
   try {
@@ -67,34 +162,44 @@ export async function PATCH(request: NextRequest) {
         where: { key: validated.key }
       })
 
-      if (!currentSetting) {
-        return NextResponse.json(
-          { error: `Configuração não encontrada: ${validated.key}` },
-          { status: 404 }
-        )
-      }
+      let result
+      let action: 'CREATE' | 'UPDATE'
 
-      // Atualizar
-      const updated = await prisma.globalSetting.update({
-        where: { key: validated.key },
-        data: {
-          value: validated.value,
-          description: validated.description,
-          updatedBy: session.user.id
-        }
-      })
+      if (!currentSetting) {
+        // Criar se não existir
+        result = await prisma.globalSetting.create({
+          data: {
+            key: validated.key!,
+            value: validated.value!,
+            description: validated.description,
+            updatedBy: session.user.id
+          }
+        })
+        action = 'CREATE'
+      } else {
+        // Atualizar se existir
+        result = await prisma.globalSetting.update({
+          where: { key: validated.key },
+          data: {
+            value: validated.value,
+            description: validated.description,
+            updatedBy: session.user.id
+          }
+        })
+        action = 'UPDATE'
+      }
 
       // Log de auditoria
       await createAuditLog({
         userId: session.user.id,
         entityType: 'GlobalSetting',
-        entityId: updated.id,
-        action: 'UPDATE',
-        oldValue: { value: currentSetting.value },
-        newValue: { value: updated.value }
+        entityId: result.id,
+        action,
+        oldValue: currentSetting ? { value: currentSetting.value, description: currentSetting.description } : null,
+        newValue: { value: result.value, description: result.description }
       })
 
-      updatedSettings.push(updated)
+      updatedSettings.push(result)
     }
 
     return NextResponse.json({ 

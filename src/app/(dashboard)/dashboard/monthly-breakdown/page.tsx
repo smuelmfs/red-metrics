@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import YearFilter from '@/components/dashboard/YearFilter'
 
 /**
  * Visão Mensal Consolidada
@@ -92,19 +93,11 @@ export default async function MonthlyBreakdownPage({
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Visão Mensal Consolidada</h1>
             <p className="text-sm lg:text-base text-gray-600 mt-1 lg:mt-2">
-              Todos os departamentos × todos os meses de {selectedYear} (equivalente à aba "Horas Faturáveis – Dept")
+              Todos os departamentos × todos os meses de {selectedYear}
             </p>
           </div>
           <div className="flex gap-2">
-            <input
-              type="number"
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm w-24"
-              defaultValue={selectedYear}
-              onChange={(e) => {
-                const year = parseInt(e.target.value) || selectedYear
-                window.location.href = `?year=${year}`
-              }}
-            />
+            <YearFilter initialYear={selectedYear} />
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@
     "db:seed:real": "tsx prisma/seed-real-data.ts",
     "db:seed:complete": "tsx prisma/seed-complete.ts",
     "db:clear": "tsx prisma/clear-db.ts",
+    "db:clear:domain": "tsx prisma/clear-domain.ts",
     "db:create-user": "tsx prisma/create-user.ts",
     "generate:secret": "node scripts/generate-secret.js"
   },

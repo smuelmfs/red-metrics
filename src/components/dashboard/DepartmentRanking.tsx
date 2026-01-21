@@ -12,7 +12,12 @@ export default function DepartmentRanking({ ranking }: DepartmentRankingProps) {
   if (ranking.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <p className="text-gray-500 text-center">Nenhum dado disponível para classificação</p>
+        <p className="text-gray-700 text-center font-medium mb-2">
+          Nenhum dado disponível para classificação
+        </p>
+        <p className="text-sm text-gray-500 text-center">
+          Salve horas faturáveis e objetivos, depois clique em "Recalcular Resultados"
+        </p>
       </div>
     )
   }
