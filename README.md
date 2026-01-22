@@ -59,12 +59,13 @@ npm run db:migrate
 
 ### Deploy na Vercel
 
-Para fazer deploy na Vercel, você precisará de um banco de dados hospedado. Veja o guia completo em [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md).
+Para fazer deploy na Vercel, você precisará de um banco MySQL hospedado. Veja o guia completo em [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md).
 
 **Resumo rápido:**
-- Use PostgreSQL (Vercel Postgres, Supabase ou Neon) ou MySQL (PlanetScale)
+- Use MySQL hospedado (PlanetScale recomendado, ou Railway)
 - Configure as variáveis de ambiente na Vercel
 - O build já está configurado para gerar o Prisma Client automaticamente
+- O schema já está configurado para MySQL, não precisa mudar nada!
 
 6. Gere o Prisma Client:
 ```bash

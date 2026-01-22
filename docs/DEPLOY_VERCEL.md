@@ -1,49 +1,48 @@
 # Guia de Deploy na Vercel
 
-Este guia explica como fazer o deploy do RED Metrics na Vercel.
+Este guia explica como fazer o deploy do RED Metrics na Vercel usando MySQL.
 
-## Opção 1: PostgreSQL (Recomendado)
+## MySQL Hospedado
 
-A Vercel recomenda PostgreSQL. Você pode usar:
-- **Vercel Postgres** (integrado)
-- **Supabase** (gratuito até certo limite)
-- **Neon** (gratuito até certo limite)
+Para fazer deploy na Vercel, você precisa de um banco MySQL hospedado. Opções recomendadas:
 
-### Passo 1: Criar banco PostgreSQL
+- **PlanetScale** (recomendado - gratuito até certo limite)
+- **Railway** (MySQL gratuito)
+- **Aiven** (MySQL gratuito com limites)
+- **AWS RDS** (pago, mas robusto)
 
-#### Usando Vercel Postgres:
-1. No dashboard da Vercel, vá em **Storage** → **Create Database** → **Postgres**
-2. Anote a `DATABASE_URL` gerada
+### Passo 1: Criar banco MySQL no PlanetScale
 
-#### Usando Supabase:
-1. Crie conta em [supabase.com](https://supabase.com)
-2. Crie um novo projeto
-3. Vá em **Settings** → **Database** → copie a **Connection string**
+1. Crie conta em [planetscale.com](https://planetscale.com)
+2. Crie um novo banco de dados:
+   - Clique em **Create database**
+   - Escolha um nome (ex: `red-metrics`)
+   - Selecione a região mais próxima
+   - Escolha o plano **Free** (para começar)
+3. Após criar, vá em **Settings** → **Connection strings**
+4. Copie a connection string (formato: `mysql://...`)
+5. **Importante**: PlanetScale usa branches. Use a branch `main` para produção
 
-#### Usando Neon:
-1. Crie conta em [neon.tech](https://neon.tech)
-2. Crie um novo projeto
-3. Copie a connection string
+### Passo 2: Executar Migrations
 
-### Passo 2: Migrar Schema do Prisma
+O schema do Prisma já está configurado para MySQL, então não precisa mudar nada!
 
-1. Atualize o `prisma/schema.prisma`:
-```prisma
-datasource db {
-  provider = "postgresql"  // Mudar de "mysql" para "postgresql"
-  url      = env("DATABASE_URL")
-}
+1. Localmente, atualize seu `.env` com a connection string do PlanetScale:
+```env
+DATABASE_URL="mysql://usuario:senha@host:porta/red_metrics"
 ```
 
 2. Execute as migrations:
 ```bash
+npx prisma migrate deploy
+```
+
+Ou se for a primeira vez:
+```bash
 npx prisma migrate dev --name init
 ```
 
-3. Ou use `db push` para desenvolvimento:
-```bash
-npx prisma db push
-```
+3. Verifique se as tabelas foram criadas no PlanetScale
 
 ### Passo 3: Configurar Variáveis de Ambiente na Vercel
 
@@ -51,7 +50,7 @@ No dashboard da Vercel, vá em **Settings** → **Environment Variables** e adic
 
 **Obrigatórias:**
 ```
-DATABASE_URL=postgresql://...
+DATABASE_URL=mysql://usuario:senha@host:porta/red_metrics
 NEXTAUTH_URL=https://seu-projeto.vercel.app
 NEXTAUTH_SECRET=seu-secret-aqui
 NODE_ENV=production
@@ -71,31 +70,21 @@ ODOO_ENCRYPTION_KEY=chave-para-criptografia
 ### Passo 4: Deploy
 
 1. Conecte seu repositório GitHub à Vercel
-2. Configure o **Build Command**: `prisma generate && next build`
-3. Configure o **Output Directory**: `.next`
-4. Faça o deploy!
+2. O `vercel.json` já está configurado com:
+   - **Build Command**: `prisma generate && next build`
+   - **Output Directory**: `.next` (automático)
+3. Faça o deploy!
 
 ---
 
-## Opção 2: MySQL (PlanetScale)
+## Alternativa: MySQL no Railway
 
-Se preferir continuar com MySQL:
+Se preferir usar Railway:
 
-### Passo 1: Criar banco no PlanetScale
-
-1. Crie conta em [planetscale.com](https://planetscale.com)
-2. Crie um novo banco de dados
+1. Crie conta em [railway.app](https://railway.app)
+2. Crie um novo projeto → **New** → **Database** → **MySQL**
 3. Copie a connection string
-
-### Passo 2: Configurar na Vercel
-
-1. Adicione a `DATABASE_URL` do PlanetScale nas variáveis de ambiente
-2. O schema do Prisma já está configurado para MySQL
-3. Execute as migrations no PlanetScale
-
-### Passo 3: Deploy
-
-Siga os mesmos passos da Opção 1, mas mantenha `provider = "mysql"` no schema.
+4. Siga os mesmos passos do PlanetScale (Passos 2-4 acima)
 
 ---
 
@@ -146,6 +135,11 @@ Após o primeiro deploy:
 - No Supabase/Neon, verifique as configurações de firewall
 
 ### Erro: "Migration failed"
-- Execute as migrations localmente primeiro
-- Verifique se o schema está compatível com PostgreSQL (se migrou de MySQL)
+- Execute as migrations localmente primeiro: `npx prisma migrate deploy`
+- No PlanetScale, certifique-se de estar usando a branch `main`
+- Verifique se a connection string está correta e permite conexões externas
+
+### Erro: "Connection refused" no PlanetScale
+- PlanetScale requer SSL. A connection string já inclui `?sslaccept=strict`
+- Verifique se está usando a branch correta (não `dev`, use `main` para produção)
 
