@@ -20,6 +20,8 @@ Sistema interno de gestão de objetivos mínimos e performance por departamento 
 
 ## 🛠️ Instalação
 
+### Desenvolvimento Local
+
 1. Clone o repositório
 2. Instale as dependências:
 ```bash
@@ -32,6 +34,15 @@ DATABASE_URL="mysql://root:@localhost:3306/red_metrics?schema=public"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 NODE_ENV="development"
+
+# Opcional: Configuração automática do Odoo (as credenciais serão usadas automaticamente)
+ODOO_BASE_URL="https://odoo.example.com"
+ODOO_DATABASE="nome_do_banco"
+ODOO_USERNAME="usuario"
+ODOO_API_KEY="sua-api-key-aqui"
+ODOO_API_TYPE="xmlrpc"
+ODOO_ENABLED="true"
+ODOO_ENCRYPTION_KEY="chave-de-32-caracteres-para-criptografia"
 ```
 
 4. Crie o banco de dados MySQL:
@@ -45,6 +56,16 @@ npm run db:push
 # ou
 npm run db:migrate
 ```
+
+### Deploy na Vercel
+
+Para fazer deploy na Vercel, você precisará de um banco MySQL hospedado. Veja o guia completo em [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md).
+
+**Resumo rápido:**
+- Use MySQL hospedado no Railway (gratuito e fácil)
+- Configure as variáveis de ambiente na Vercel
+- O build já está configurado para gerar o Prisma Client automaticamente
+- O schema já está configurado para MySQL, não precisa mudar nada!
 
 6. Gere o Prisma Client:
 ```bash

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import PlannedHoursForm from '@/components/planned-hours/PlannedHoursForm'
 import MonthYearFilter from '@/components/planned-hours/MonthYearFilter'
+import { getOdooIntegration } from '@/lib/integrations/odoo/service'
 
 export default async function PlannedHoursPage({
   searchParams,
@@ -45,6 +46,9 @@ export default async function PlannedHoursPage({
     updatedAt: dept.updatedAt.toISOString(),
   }))
 
+  // Verificar se integração Odoo está ativa
+  const odooIntegration = await getOdooIntegration()
+
   const plannedHours = await prisma.plannedHours.findMany({
     where: {
       month: selectedMonth,
@@ -72,6 +76,8 @@ export default async function PlannedHoursPage({
     targetAvailableHours: ph.targetAvailableHours ? Number(ph.targetAvailableHours) : null,
     actualBillableHours: ph.actualBillableHours ? Number(ph.actualBillableHours) : null,
     actualUtilization: ph.actualUtilization ? Number(ph.actualUtilization) : null,
+    syncedFromOdoo: ph.syncedFromOdoo,
+    lastSyncedAt: ph.lastSyncedAt?.toISOString() || null,
     retainerRevenue: ph.retainerRevenue ? Number(ph.retainerRevenue) : null,
     projectRevenue: ph.projectRevenue ? Number(ph.projectRevenue) : null,
     totalRevenue: ph.totalRevenue ? Number(ph.totalRevenue) : null,
@@ -116,6 +122,8 @@ export default async function PlannedHoursPage({
           <div className="space-y-4">
             {serializedDepartments.map((dept) => {
               const planned = serializedPlannedHours.find(ph => ph.departmentId === dept.id)
+              // Se a integração Odoo estiver ativa, todos os departamentos podem ter horas sincronizadas
+              const hasOdooSync = odooIntegration?.isEnabled && planned?.syncedFromOdoo
               return (
                 <PlannedHoursForm
                   key={dept.id}
@@ -123,6 +131,8 @@ export default async function PlannedHoursPage({
                   month={selectedMonth}
                   year={selectedYear}
                   initialData={planned || undefined}
+                  odooEnabled={odooIntegration?.isEnabled || false}
+                  hasOdooMapping={hasOdooSync || false}
                 />
               )
             })}
