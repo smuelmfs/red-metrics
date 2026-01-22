@@ -184,7 +184,7 @@ export default function PlannedHoursForm({
             value={formData.billableHeadcount || ''}
             onChange={(e) => {
               const value = e.target.value
-              setFormData({ ...formData, billableHeadcount: value ? parseInt(value) : null })
+              setFormData({ ...formData, billableHeadcount: value ? parseInt(value, 10) : (formData.billableHeadcount ?? null) })
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
           />
@@ -201,7 +201,7 @@ export default function PlannedHoursForm({
             value={formData.targetHoursPerMonth || ''}
             onChange={(e) => {
               const value = e.target.value
-              setFormData({ ...formData, targetHoursPerMonth: value ? parseFloat(value) : null })
+              setFormData({ ...formData, targetHoursPerMonth: value ? parseFloat(value) : (formData.targetHoursPerMonth ?? null) })
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
           />
@@ -219,7 +219,7 @@ export default function PlannedHoursForm({
             value={formData.targetUtilization || ''}
             onChange={(e) => {
               const value = e.target.value
-              setFormData({ ...formData, targetUtilization: value ? parseFloat(value) : null })
+              setFormData({ ...formData, targetUtilization: value ? parseFloat(value) : (formData.targetUtilization ?? null) })
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
           />
@@ -241,7 +241,7 @@ export default function PlannedHoursForm({
             value={displayAvailableHours || ''}
             onChange={(e) => {
               const value = e.target.value
-              setFormData({ ...formData, targetAvailableHours: value ? parseFloat(value) : null })
+              setFormData({ ...formData, targetAvailableHours: value ? parseFloat(value) : (formData.targetAvailableHours ?? null) })
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
             title="Calculado automaticamente: HC × Horas/Mês × Utilização (pode editar manualmente)"
@@ -261,7 +261,7 @@ export default function PlannedHoursForm({
             value={formData.actualBillableHours || ''}
             onChange={(e) => {
               const value = e.target.value
-              setFormData({ ...formData, actualBillableHours: value ? parseFloat(value) : null })
+              setFormData({ ...formData, actualBillableHours: value ? parseFloat(value) : (formData.actualBillableHours ?? null) })
             }}
             disabled={odooEnabled && hasOdooMapping && initialData?.syncedFromOdoo}
             className={`w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500 ${
@@ -298,7 +298,7 @@ export default function PlannedHoursForm({
             value={formData.projectRevenue || ''}
             onChange={(e) => {
               const value = e.target.value
-              setFormData({ ...formData, projectRevenue: value ? parseFloat(value) : null })
+              setFormData({ ...formData, projectRevenue: value ? parseFloat(value) : (formData.projectRevenue ?? null) })
             }}
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
           />

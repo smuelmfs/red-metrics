@@ -16,24 +16,46 @@ export const updateDepartmentSchema = createDepartmentSchema.partial().extend({
 })
 
 // Planned Hours validations
+// Helper para converter valores para número ou null
+const optionalNumber = z.preprocess((val) => {
+  if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') {
+    return null
+  }
+  const num = Number(val)
+  return isNaN(num) ? null : num
+}, z.number().nullable().optional())
+
 export const createPlannedHoursSchema = z.object({
   departmentId: z.string().min(1),
-  month: z.number().int().min(1).max(12),
-  year: z.number().int().min(2020).max(2100),
-  billableHeadcount: z.number().int().positive().optional(),
-  targetHoursPerMonth: z.number().positive().optional(),
-  targetUtilization: z.number().min(0).max(1).optional(),
-  targetAvailableHours: z.number().nonnegative().optional().nullable(),
-  actualBillableHours: z.number().nonnegative().optional(),
-  projectRevenue: z.number().nonnegative().optional()
+  month: z.coerce.number().int().min(1).max(12),
+  year: z.coerce.number().int().min(2020).max(2100),
+  // Usar preprocess para aceitar strings de inputs HTML e converter para número ou null
+  billableHeadcount: z.preprocess((val) => {
+    if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return null
+    const num = Number(val)
+    return isNaN(num) ? null : Math.floor(num)
+  }, z.number().int().positive().nullable().optional()),
+  targetHoursPerMonth: z.preprocess((val) => {
+    if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return null
+    const num = Number(val)
+    return isNaN(num) ? null : num
+  }, z.number().positive().nullable().optional()),
+  targetUtilization: z.preprocess((val) => {
+    if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return null
+    const num = Number(val)
+    return isNaN(num) ? null : num
+  }, z.number().min(0).max(1).nullable().optional()),
+  targetAvailableHours: optionalNumber,
+  actualBillableHours: optionalNumber,
+  projectRevenue: optionalNumber
 })
 
 // Objective validations
 export const createObjectiveSchema = z.object({
   departmentId: z.string().min(1),
-  month: z.number().int().min(1).max(12),
-  year: z.number().int().min(2020).max(2100),
-  targetValue: z.number().positive('Target value must be positive')
+  month: z.coerce.number().int().min(1).max(12),
+  year: z.coerce.number().int().min(2020).max(2100),
+  targetValue: z.coerce.number().positive('Target value must be positive')
 })
 
 // Retainer validations

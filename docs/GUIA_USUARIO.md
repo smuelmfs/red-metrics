@@ -562,32 +562,14 @@ São as horas que o departamento tem disponível para faturar, considerando:
 
 Este valor é calculado automaticamente, mas pode ser editado manualmente se necessário.
 
-**Exemplo de cálculo completo:**
+**Exemplo de cálculo:**
+- Departamento com 4 pessoas
+- Horas por mês: 160h por pessoa
+- Total: 4 × 160 = 640 horas totais
+- Utilização faturável: 65%
+- Horas disponíveis (alvo): 640 × 0,65 = **416 horas**
 
-**Cenário:** Departamento "Branding & Design" com 4 pessoas
-
-1. **Horas totais do mês:**
-   - 4 pessoas × 160h = 640 horas totais
-
-2. **Horas faturáveis (alvo):**
-   - 640h × 0,65 (65% utilização) = **416 horas disponíveis**
-
-3. **Horas planejadas:**
-   - Baseado em projetos e demandas: **520 horas**
-
-4. **Horas reais trabalhadas:**
-   - O que realmente foi executado: **485 horas** (vem do Odoo)
-
-5. **Interpretação:**
-   - Planejou trabalhar: 520h
-   - Trabalhou de fato: 485h
-   - Alvo de horas faturáveis: 416h
-   - **Conclusão:** Trabalhou 485h, mas apenas 416h devem ser faturáveis. As outras 69h são overhead interno (reuniões, admin, etc.)
-
-**Se as horas reais (485h) forem todas faturáveis:**
-- Receita potencial: 485h × €45/h = €21.825
-- Mas o alvo é apenas 416h × €45/h = €18.720
-- Diferença: €3.105 (horas extras não planejadas)
+Se o departamento trabalhou 485 horas reais, mas o alvo é 416h, significa que trabalhou mais horas do que o planejado.
 
 ### 10.5 Por que alguns departamentos aparecem como "N/A" no Dashboard?
 

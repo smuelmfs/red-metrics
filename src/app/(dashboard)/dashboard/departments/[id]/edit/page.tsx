@@ -161,7 +161,10 @@ export default function EditDepartmentPage() {
                 required
                 min="1"
                 value={formData.billableHeadcount}
-                onChange={(e) => setFormData({ ...formData, billableHeadcount: parseInt(e.target.value) || 0 })}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, billableHeadcount: value ? parseInt(value, 10) : formData.billableHeadcount })
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -177,7 +180,10 @@ export default function EditDepartmentPage() {
                 min="0"
                 step="0.01"
                 value={formData.averageHourlyRate}
-                onChange={(e) => setFormData({ ...formData, averageHourlyRate: parseFloat(e.target.value) || 0 })}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, averageHourlyRate: value ? parseFloat(value) : formData.averageHourlyRate })
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -193,8 +199,11 @@ export default function EditDepartmentPage() {
                 id="costPerPersonPerMonth"
                 min="0"
                 step="0.01"
-                value={formData.costPerPersonPerMonth || ''}
-                onChange={(e) => setFormData({ ...formData, costPerPersonPerMonth: parseFloat(e.target.value) || null })}
+                value={formData.costPerPersonPerMonth ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, costPerPersonPerMonth: value ? parseFloat(value) : null })
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -210,7 +219,10 @@ export default function EditDepartmentPage() {
                 max="1"
                 step="0.01"
                 value={formData.targetUtilization}
-                onChange={(e) => setFormData({ ...formData, targetUtilization: parseFloat(e.target.value) || 0 })}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, targetUtilization: value ? parseFloat(value) : formData.targetUtilization })
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               <p className="text-xs text-gray-500 mt-1">

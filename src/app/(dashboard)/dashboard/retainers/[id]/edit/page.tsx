@@ -206,7 +206,10 @@ export default function EditRetainerPage() {
                 min="0"
                 step="0.01"
                 value={formData.monthlyPrice}
-                onChange={(e) => setFormData({ ...formData, monthlyPrice: parseFloat(e.target.value) || 0 })}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, monthlyPrice: value ? parseFloat(value) : formData.monthlyPrice })
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -222,7 +225,10 @@ export default function EditRetainerPage() {
                 id="quantity"
                 min="1"
                 value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setFormData({ ...formData, quantity: value ? parseInt(value, 10) : formData.quantity })
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
