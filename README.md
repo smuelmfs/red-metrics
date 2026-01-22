@@ -20,6 +20,8 @@ Sistema interno de gestão de objetivos mínimos e performance por departamento 
 
 ## 🛠️ Instalação
 
+### Desenvolvimento Local
+
 1. Clone o repositório
 2. Instale as dependências:
 ```bash
@@ -40,6 +42,7 @@ ODOO_USERNAME="usuario"
 ODOO_API_KEY="sua-api-key-aqui"
 ODOO_API_TYPE="xmlrpc"
 ODOO_ENABLED="true"
+ODOO_ENCRYPTION_KEY="chave-de-32-caracteres-para-criptografia"
 ```
 
 4. Crie o banco de dados MySQL:
@@ -53,6 +56,15 @@ npm run db:push
 # ou
 npm run db:migrate
 ```
+
+### Deploy na Vercel
+
+Para fazer deploy na Vercel, você precisará de um banco de dados hospedado. Veja o guia completo em [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md).
+
+**Resumo rápido:**
+- Use PostgreSQL (Vercel Postgres, Supabase ou Neon) ou MySQL (PlanetScale)
+- Configure as variáveis de ambiente na Vercel
+- O build já está configurado para gerar o Prisma Client automaticamente
 
 6. Gere o Prisma Client:
 ```bash
