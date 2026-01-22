@@ -254,9 +254,74 @@ O backend vai:
 
 ---
 
-## 7. Horas Faturáveis e Objetivos
+## 7. Integração com Odoo (Opcional)
 
-### 7.1 Horas Planejadas / Reais (`/dashboard/planned-hours`)
+A integração com Odoo permite sincronizar automaticamente as horas reais dos departamentos diretamente do sistema Odoo.
+
+### 7.1 Configuração via Variáveis de Ambiente
+
+A configuração é feita através do arquivo `.env` na raiz do projeto. Adicione as seguintes variáveis:
+
+```env
+ODOO_BASE_URL="https://odoo.example.com"
+ODOO_DATABASE="nome_do_banco"
+ODOO_USERNAME="usuario"
+ODOO_API_KEY="sua-api-key-aqui"
+ODOO_API_TYPE="xmlrpc"
+ODOO_ENABLED="true"
+```
+
+**Importante:**
+- Use a **API Key** do Odoo (não a senha de login)
+- A API Key pode ser obtida nas configurações de usuário do Odoo
+- O sistema inicializa automaticamente a configuração quando essas variáveis estão definidas
+- Não é necessário configurar manualmente na interface
+
+### 7.2 Sincronização de Horas (`/dashboard/odoo`)
+
+1. Acesse a página **Integração Odoo** (apenas para usuários ADMIN)
+2. Na aba **Sincronização**:
+   - Selecione o **Mês** e **Ano** (apenas anos >= 2026)
+   - Clique em **Sincronizar Horas**
+3. O sistema irá:
+   - Buscar departamentos do Odoo que têm horas registradas no período
+   - Filtrar apenas por tipos de faturamento: "Billed at a fixed price", "Billed on Timesheets", "Billed on Milestones", "Billed Manually"
+   - Criar departamentos automaticamente se não existirem no RED Metrics
+   - Atualizar as horas reais (`actualBillableHours`) para cada departamento
+
+### 7.3 Visualizar Dados Sincronizados
+
+Na aba **Dados Sincronizados**, você pode:
+- Ver todos os departamentos sincronizados do Odoo
+- Verificar as horas sincronizadas por mês/ano
+- Ver a data da última sincronização
+
+### 7.4 Departamentos do Odoo vs. Departamentos Manuais
+
+**Departamentos sincronizados do Odoo:**
+- Campo "Horas Reais" está **protegido** (não editável manualmente)
+- Mostra indicador "(Sincronizado do Odoo)"
+- Horas são atualizadas apenas via sincronização
+
+**Departamentos criados manualmente:**
+- Campo "Horas Reais" está **editável** manualmente
+- Você pode inserir as horas diretamente no formulário
+- Não são afetados pela sincronização do Odoo
+
+### 7.5 Edição de Horas Disponíveis
+
+O campo **"Horas Disponíveis (alvo)"** é calculado automaticamente pela fórmula:
+```
+HC Faturável × Horas/Mês × Utilização Alvo
+```
+
+Você pode editar manualmente este valor se necessário, mas por padrão ele é calculado automaticamente.
+
+---
+
+## 8. Horas Faturáveis e Objetivos
+
+### 8.1 Horas Planejadas / Reais (`/dashboard/planned-hours`)
 
 Selecione um mês e ano, por exemplo:
 - **Mês**: `1`
@@ -280,7 +345,7 @@ Para cada departamento:
 
 Clique em **Salvar**.
 
-### 7.2 Objetivos (`/dashboard/objectives`)
+### 8.2 Objetivos (`/dashboard/objectives`)
 
 No mesmo mês/ano (1/2025), defina objetivos:
 
@@ -294,7 +359,7 @@ Clique em **Salvar Objetivos**.
 
 ---
 
-## 8. Verificando os resultados
+## 9. Verificando os resultados
 
 Depois de criar:
 - Departamentos
@@ -323,7 +388,7 @@ Se algum campo aparecer com `-`:
 
 ---
 
-## 9. Dicas para evitar dúvidas com campos vazios
+## 10. Dicas para evitar dúvidas com campos vazios
 
 - Prefira sempre preencher:
   - **Custo Interno/h** ao criar itens do catálogo (para ter margens visíveis).
