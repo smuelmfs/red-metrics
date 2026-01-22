@@ -19,9 +19,13 @@ Para fazer deploy na Vercel, você precisa de um banco MySQL hospedado. Vamos us
 4. Obtenha a connection string:
    - Clique no serviço MySQL criado
    - Vá na aba **Variables**
-   - Copie a variável `DATABASE_URL` (formato: `mysql://...`)
-   - **OU** vá na aba **Connect** e copie a connection string completa
-5. **Importante**: A connection string do Railway já inclui todas as credenciais necessárias
+   - **Use a variável `MYSQL_PUBLIC_URL`** (NÃO use `MYSQL_URL`)
+   - A `MYSQL_PUBLIC_URL` permite conexões externas (necessário para Vercel)
+   - A `MYSQL_URL` é apenas para serviços dentro do Railway
+   - Copie o valor completo (formato: `mysql://root:senha@host:porta/railway`)
+5. **Importante**: 
+   - Use sempre `MYSQL_PUBLIC_URL` para conexões externas (Vercel, local, etc.)
+   - A connection string já inclui todas as credenciais necessárias
 
 ### Passo 2: Executar Migrations
 
@@ -29,10 +33,13 @@ O schema do Prisma já está configurado para MySQL, então não precisa mudar n
 
 1. Localmente, atualize seu `.env` com a connection string do Railway:
 ```env
-DATABASE_URL="mysql://usuario:senha@host:porta/railway"
+DATABASE_URL="mysql://root:senha@shortline.proxy.rlwy.net:porta/railway"
 ```
 
-**Nota**: O Railway pode usar um nome de banco diferente (como `railway`). Verifique na connection string.
+**Importante**: 
+- Use o valor de `MYSQL_PUBLIC_URL` (não `MYSQL_URL`)
+- O Railway usa `railway` como nome do banco por padrão
+- A URL pública tem o formato `@shortline.proxy.rlwy.net` ou similar
 
 2. Execute as migrations:
 ```bash
