@@ -2,35 +2,37 @@
 
 Este guia explica como fazer o deploy do RED Metrics na Vercel usando MySQL.
 
-## MySQL Hospedado
+## MySQL Hospedado no Railway
 
-Para fazer deploy na Vercel, você precisa de um banco MySQL hospedado. Opções recomendadas:
+Para fazer deploy na Vercel, você precisa de um banco MySQL hospedado. Vamos usar o **Railway** (gratuito com limites generosos).
 
-- **PlanetScale** (recomendado - gratuito até certo limite)
-- **Railway** (MySQL gratuito)
-- **Aiven** (MySQL gratuito com limites)
-- **AWS RDS** (pago, mas robusto)
+### Passo 1: Criar banco MySQL no Railway
 
-### Passo 1: Criar banco MySQL no PlanetScale
-
-1. Crie conta em [planetscale.com](https://planetscale.com)
-2. Crie um novo banco de dados:
-   - Clique em **Create database**
-   - Escolha um nome (ex: `red-metrics`)
-   - Selecione a região mais próxima
-   - Escolha o plano **Free** (para começar)
-3. Após criar, vá em **Settings** → **Connection strings**
-4. Copie a connection string (formato: `mysql://...`)
-5. **Importante**: PlanetScale usa branches. Use a branch `main` para produção
+1. Crie conta em [railway.app](https://railway.app) (pode usar GitHub para login)
+2. Crie um novo projeto:
+   - Clique em **New Project**
+   - Selecione **Empty Project** ou **Deploy from GitHub repo** (se quiser conectar depois)
+3. Adicione um banco MySQL:
+   - No projeto, clique em **+ New**
+   - Selecione **Database** → **Add MySQL**
+   - O Railway criará automaticamente um banco MySQL
+4. Obtenha a connection string:
+   - Clique no serviço MySQL criado
+   - Vá na aba **Variables**
+   - Copie a variável `DATABASE_URL` (formato: `mysql://...`)
+   - **OU** vá na aba **Connect** e copie a connection string completa
+5. **Importante**: A connection string do Railway já inclui todas as credenciais necessárias
 
 ### Passo 2: Executar Migrations
 
 O schema do Prisma já está configurado para MySQL, então não precisa mudar nada!
 
-1. Localmente, atualize seu `.env` com a connection string do PlanetScale:
+1. Localmente, atualize seu `.env` com a connection string do Railway:
 ```env
-DATABASE_URL="mysql://usuario:senha@host:porta/red_metrics"
+DATABASE_URL="mysql://usuario:senha@host:porta/railway"
 ```
+
+**Nota**: O Railway pode usar um nome de banco diferente (como `railway`). Verifique na connection string.
 
 2. Execute as migrations:
 ```bash
@@ -42,7 +44,9 @@ Ou se for a primeira vez:
 npx prisma migrate dev --name init
 ```
 
-3. Verifique se as tabelas foram criadas no PlanetScale
+3. Verifique se as tabelas foram criadas:
+   - No Railway, vá no serviço MySQL → **Data** → **Open in TablePlus** (ou use outro cliente)
+   - Ou execute: `npx prisma studio` e conecte com a DATABASE_URL do Railway
 
 ### Passo 3: Configurar Variáveis de Ambiente na Vercel
 
@@ -50,11 +54,13 @@ No dashboard da Vercel, vá em **Settings** → **Environment Variables** e adic
 
 **Obrigatórias:**
 ```
-DATABASE_URL=mysql://usuario:senha@host:porta/red_metrics
+DATABASE_URL=mysql://usuario:senha@host:porta/railway
 NEXTAUTH_URL=https://seu-projeto.vercel.app
 NEXTAUTH_SECRET=seu-secret-aqui
 NODE_ENV=production
 ```
+
+**Nota**: Use a connection string completa que o Railway forneceu. Ela já inclui todas as credenciais.
 
 **Opcionais (para integração Odoo):**
 ```
@@ -77,14 +83,14 @@ ODOO_ENCRYPTION_KEY=chave-para-criptografia
 
 ---
 
-## Alternativa: MySQL no Railway
+## Alternativa: PlanetScale
 
-Se preferir usar Railway:
+Se preferir usar PlanetScale ao invés do Railway:
 
-1. Crie conta em [railway.app](https://railway.app)
-2. Crie um novo projeto → **New** → **Database** → **MySQL**
-3. Copie a connection string
-4. Siga os mesmos passos do PlanetScale (Passos 2-4 acima)
+1. Crie conta em [planetscale.com](https://planetscale.com)
+2. Crie um novo banco de dados (plano Free)
+3. Copie a connection string da branch `main`
+4. Siga os mesmos passos acima (Passos 2-4)
 
 ---
 
@@ -136,10 +142,15 @@ Após o primeiro deploy:
 
 ### Erro: "Migration failed"
 - Execute as migrations localmente primeiro: `npx prisma migrate deploy`
-- No PlanetScale, certifique-se de estar usando a branch `main`
-- Verifique se a connection string está correta e permite conexões externas
+- Verifique se a connection string do Railway está correta
+- O Railway permite conexões externas por padrão, mas verifique se não há firewall bloqueando
 
-### Erro: "Connection refused" no PlanetScale
-- PlanetScale requer SSL. A connection string já inclui `?sslaccept=strict`
-- Verifique se está usando a branch correta (não `dev`, use `main` para produção)
+### Erro: "Connection refused" no Railway
+- Verifique se o serviço MySQL está rodando no Railway
+- Confirme que está usando a connection string correta (pode mudar após restart)
+- Railway pode ter limites de conexões simultâneas no plano gratuito
+
+### Erro: "Access denied" no Railway
+- Verifique se as credenciais na connection string estão corretas
+- O Railway gera credenciais automaticamente - use a connection string completa fornecida
 
