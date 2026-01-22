@@ -131,9 +131,12 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### Primeiro Deploy
 
 Após o primeiro deploy:
-1. Acesse a URL da Vercel
-2. Crie o primeiro usuário ADMIN (ou use o script `db:create-user`)
-3. Configure as variáveis do Odoo se necessário
+1. **Crie o primeiro usuário ADMIN** (veja [docs/CRIAR_USUARIO.md](docs/CRIAR_USUARIO.md)):
+   - Configure o `.env` local com a `DATABASE_URL` do Railway
+   - Execute: `npm run db:create-user` ou com parâmetros customizados
+2. Acesse a URL da Vercel
+3. Faça login com o usuário criado
+4. Configure as variáveis do Odoo se necessário
 
 ---
 
