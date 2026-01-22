@@ -17,6 +17,7 @@
     "db:clear": "tsx prisma/clear-db.ts",
     "db:clear:domain": "tsx prisma/clear-domain.ts",
     "db:create-user": "tsx prisma/create-user.ts",
+    "db:test:odoo": "tsx prisma/test-odoo-sync.ts",
     "generate:secret": "node scripts/generate-secret.js"
   },
   "dependencies": {

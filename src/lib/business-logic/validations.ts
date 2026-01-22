@@ -23,6 +23,7 @@ export const createPlannedHoursSchema = z.object({
   billableHeadcount: z.number().int().positive().optional(),
   targetHoursPerMonth: z.number().positive().optional(),
   targetUtilization: z.number().min(0).max(1).optional(),
+  targetAvailableHours: z.number().nonnegative().optional().nullable(),
   actualBillableHours: z.number().nonnegative().optional(),
   projectRevenue: z.number().nonnegative().optional()
 })

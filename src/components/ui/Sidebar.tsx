@@ -20,7 +20,8 @@ import {
   BookOpen,
   List,
   BarChart3,
-  Target
+  Target,
+  RefreshCw
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -90,6 +91,7 @@ export default function Sidebar({ userRole: propUserRole, userName: propUserName
   const adminItems = userRole === 'ADMIN'
     ? [
         { href: '/dashboard/settings', label: 'Configurações', icon: Settings },
+        { href: '/dashboard/odoo', label: 'Integração Odoo', icon: RefreshCw },
         { href: '/dashboard/audit', label: 'Auditoria', icon: Shield },
       ]
     : []

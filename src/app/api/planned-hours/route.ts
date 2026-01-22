@@ -65,11 +65,15 @@ export async function POST(request: NextRequest) {
     const validatedData = createPlannedHoursSchema.parse(body)
 
     // Calcular horas disponíveis se necessário (regra centralizada em modules/hours)
-    const targetAvailableHours = calculateTargetAvailableHours({
-      billableHeadcount: validatedData.billableHeadcount ?? undefined,
-      targetHoursPerMonth: validatedData.targetHoursPerMonth ?? undefined,
-      targetUtilization: validatedData.targetUtilization ?? undefined
-    })
+    // Se targetAvailableHours foi enviado manualmente, usar esse valor
+    // Caso contrário, calcular automaticamente
+    const targetAvailableHours = validatedData.targetAvailableHours !== null && validatedData.targetAvailableHours !== undefined
+      ? validatedData.targetAvailableHours
+      : calculateTargetAvailableHours({
+          billableHeadcount: validatedData.billableHeadcount ?? undefined,
+          targetHoursPerMonth: validatedData.targetHoursPerMonth ?? undefined,
+          targetUtilization: validatedData.targetUtilization ?? undefined
+        })
 
     const plannedHours = await prisma.plannedHours.upsert({
       where: {

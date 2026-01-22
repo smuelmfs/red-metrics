@@ -32,6 +32,14 @@ DATABASE_URL="mysql://root:@localhost:3306/red_metrics?schema=public"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 NODE_ENV="development"
+
+# Opcional: Configuração automática do Odoo (as credenciais serão usadas automaticamente)
+ODOO_BASE_URL="https://odoo.example.com"
+ODOO_DATABASE="nome_do_banco"
+ODOO_USERNAME="usuario"
+ODOO_API_KEY="sua-api-key-aqui"
+ODOO_API_TYPE="xmlrpc"
+ODOO_ENABLED="true"
 ```
 
 4. Crie o banco de dados MySQL:

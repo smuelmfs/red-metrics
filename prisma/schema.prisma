@@ -93,6 +93,7 @@ model Department {
   retainerCatalog RetainerCatalog[]
   results         Result[]
   auditLogs       AuditLog[]
+  odooMapping     OdooDepartmentMapping?
 
   @@index([isActive])
 }
@@ -113,6 +114,8 @@ model PlannedHours {
   // Real hours (do Odoo ou manual)
   actualBillableHours Decimal? @db.Decimal(10, 2) // Horas faturáveis registadas (Odoo)
   actualUtilization   Decimal? @db.Decimal(5, 4) // % Utilização (real)
+  syncedFromOdoo      Boolean   @default(false) // Indica se foi sincronizado do Odoo
+  lastSyncedAt        DateTime? // Última sincronização do Odoo
 
   // Revenue
   retainerRevenue Decimal? @db.Decimal(12, 2) // Receita recorrente (avenças)
@@ -260,4 +263,45 @@ model AuditLog {
   @@index([createdAt])
   @@index([userId])
   @@index([departmentId])
+}
+
+// Odoo Integration Configuration
+model OdooIntegration {
+  id                String   @id @default(cuid())
+  isEnabled          Boolean  @default(false)
+  baseUrl            String   // URL base do Odoo (ex: https://odoo.example.com)
+  database           String   // Nome do banco de dados
+  username           String   // Usuário para autenticação
+  password           String   // Senha (criptografada)
+  apiType            String   @default("xmlrpc") // "xmlrpc" ou "jsonrpc"
+  syncFrequency     String?  // "manual", "daily", "weekly" (para futuras implementações)
+  lastSyncAt         DateTime?
+  lastSyncStatus     String?  // "success", "error"
+  lastSyncError      String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  departmentMappings OdooDepartmentMapping[]
+
+  @@index([isEnabled])
+}
+
+// Mapeamento de Departamentos: Odoo <-> RED Metrics
+model OdooDepartmentMapping {
+  id                String   @id @default(cuid())
+  odooIntegrationId String
+  departmentId      String   @unique // Departamento no RED Metrics
+  odooDepartmentId  Int      // ID do departamento no Odoo
+  odooDepartmentName String? // Nome do departamento no Odoo (para referência)
+  mappingType       String   @default("id") // "id", "name", "code"
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  odooIntegration OdooIntegration @relation(fields: [odooIntegrationId], references: [id], onDelete: Cascade)
+  department     Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@index([odooIntegrationId])
+  @@index([departmentId])
+  @@index([isActive])
 }

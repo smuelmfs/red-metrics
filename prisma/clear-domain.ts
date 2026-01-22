@@ -47,6 +47,12 @@ async function main() {
     console.log('  - Deletando GlobalSettings...')
     await prisma.globalSetting.deleteMany({})
 
+    console.log('  - Deletando OdooDepartmentMappings...')
+    await prisma.odooDepartmentMapping.deleteMany({})
+
+    console.log('  - Deletando OdooIntegrations...')
+    await prisma.odooIntegration.deleteMany({})
+
     console.log('✅ Dados de domínio limpos com sucesso!')
     console.log('')
     console.log('💡 Agora você pode seguir o tutorial em docs/TUTORIAL_DADOS_FICTICIOS.md')
