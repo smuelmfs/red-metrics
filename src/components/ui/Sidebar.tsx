@@ -21,7 +21,8 @@ import {
   List,
   BarChart3,
   Target,
-  RefreshCw
+  RefreshCw,
+  Sparkles
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -64,6 +65,12 @@ export default function Sidebar({ userRole: propUserRole, userName: propUserName
       href: '/dashboard', 
       label: 'Dashboard', 
       icon: LayoutDashboard,
+      hasSubmenu: false
+    },
+    { 
+      href: '/dashboard/setup', 
+      label: 'Setup Completo', 
+      icon: Sparkles,
       hasSubmenu: false
     },
   ]
