@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import Logo from './Logo'
-import { Menu } from 'lucide-react'
+import Logo from "./Logo";
+import { Menu } from "lucide-react";
 
 interface MobileHeaderProps {
-  onMenuClick: () => void
+  onMenuClick: () => void;
 }
 
 export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
@@ -19,6 +19,5 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
       </button>
       <Logo size="sm" showText={true} />
     </div>
-  )
+  );
 }
-

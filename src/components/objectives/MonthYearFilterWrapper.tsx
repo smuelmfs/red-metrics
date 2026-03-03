@@ -1,14 +1,13 @@
-'use client'
+"use client";
 
-import MonthYearFilter from '../planned-hours/MonthYearFilter'
+import MonthYearFilter from "../planned-hours/MonthYearFilter";
 
-export default function MonthYearFilterWrapper({ 
-  month, 
-  year 
-}: { 
-  month: number
-  year: number 
+export default function MonthYearFilterWrapper({
+  month,
+  year,
+}: {
+  month: number;
+  year: number;
 }) {
-  return <MonthYearFilter initialMonth={month} initialYear={year} />
+  return <MonthYearFilter initialMonth={month} initialYear={year} />;
 }
-

@@ -1,26 +1,30 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useSession } from 'next-auth/react'
-import MobileHeader from './MobileHeader'
-import Sidebar from './Sidebar'
-import Logo from './Logo'
-import { X } from 'lucide-react'
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import MobileHeader from "./MobileHeader";
+import Sidebar from "./Sidebar";
+import Logo from "./Logo";
+import { X } from "lucide-react";
 
 interface MobileHeaderWrapperProps {
-  userRole?: string
-  userName?: string | null
-  userEmail?: string | null
+  userRole?: string;
+  userName?: string | null;
+  userEmail?: string | null;
 }
 
-export default function MobileHeaderWrapper({ userRole: propUserRole, userName: propUserName, userEmail: propUserEmail }: MobileHeaderWrapperProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const { data: session } = useSession()
-  
+export default function MobileHeaderWrapper({
+  userRole: propUserRole,
+  userName: propUserName,
+  userEmail: propUserEmail,
+}: MobileHeaderWrapperProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+
   // Usar dados da sessão se disponíveis, senão usar props (fallback para SSR)
-  const userRole = session?.user?.role || propUserRole || 'USER'
-  const userName = session?.user?.name || propUserName
-  const userEmail = session?.user?.email || propUserEmail
+  const userRole = session?.user?.role || propUserRole || "USER";
+  const userName = session?.user?.name || propUserName;
+  const userEmail = session?.user?.email || propUserEmail;
 
   return (
     <>
@@ -56,6 +60,5 @@ export default function MobileHeaderWrapper({ userRole: propUserRole, userName: 
         </>
       )}
     </>
-  )
+  );
 }
-

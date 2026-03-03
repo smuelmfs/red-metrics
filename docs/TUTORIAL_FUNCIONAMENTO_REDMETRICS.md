@@ -21,6 +21,7 @@ Depois de logar, use o menu lateral para navegar.
 ## 2. Configurações Globais (`/dashboard/settings`)
 
 Essas configurações alimentam vários cálculos:
+
 - Horas/mês
 - Margem alvo
 - Utilização alvo
@@ -122,6 +123,7 @@ Na tela **Gastos da Empresa**, clique em **Novo Custo Fixo** e crie alguns exemp
    - Descrição: `Licenças Adobe, Notion, Google Workspace, Slack, etc.`
 
 Campos opcionais que podem ficar vazios sem erro:
+
 - **Descrição**
 - **Data de término**
 
@@ -146,6 +148,7 @@ Na tela **Catálogo de Avenças**, clique em **Novo Item do Catálogo**:
    - Base Hours / Base Price: deixar em branco (opcional).
 
 Enquanto você preenche:
+
 - O formulário mostra um **preview**:
   - Custo Mensal = 20 × 30 = 600
   - Margem = 800 - 600 = 200
@@ -163,7 +166,7 @@ Na lista do catálogo:
 
 - Você pode marcar o checkbox:
   - **“Mostrar detalhes de custo e margem”**  
-  para ver as colunas:
+    para ver as colunas:
   - Custo Interno/h
   - Custo Mensal
   - Margem
@@ -192,6 +195,7 @@ Crie mais itens, por exemplo:
 ### 6.1 Criar avença a partir do catálogo (`/dashboard/retainers/new`)
 
 Nesta tela você pode:
+
 - Selecionar um tipo de avença do catálogo, ou
 - Criar uma avença customizada.
 
@@ -206,7 +210,6 @@ Nesta tela você pode:
      - Horas/Mês (interno, para cálculos).
 
 2. Complete os campos:
-
    - Tipo de Avença: `Social Media`
    - Quantidade: `1`
    - Receita Mensal Total: preview em € (não editável).
@@ -217,6 +220,7 @@ Nesta tela você pode:
 3. Clique em **Criar Avença**.
 
 Depois:
+
 - Em `/dashboard/retainers`, veja a avença listada sob o departamento **Marketing Digital & Performance**, com:
   - Nome
   - Tipo
@@ -248,6 +252,7 @@ Na lista de avenças, ela aparecerá com `catalog` vazio, mas é tratada normalm
 3. Clique em **Salvar Alterações**.
 
 O backend vai:
+
 - Recalcular `monthlyRevenue`.
 - Registrar log de auditoria.
 - Recalcular resultados do departamento para o mês atual e próximos meses.
@@ -272,6 +277,7 @@ ODOO_ENABLED="true"
 ```
 
 **Importante:**
+
 - Use a **API Key** do Odoo (não a senha de login)
 - A API Key pode ser obtida nas configurações de usuário do Odoo
 - O sistema inicializa automaticamente a configuração quando essas variáveis estão definidas
@@ -292,6 +298,7 @@ ODOO_ENABLED="true"
 ### 7.3 Visualizar Dados Sincronizados
 
 Na aba **Dados Sincronizados**, você pode:
+
 - Ver todos os departamentos sincronizados do Odoo
 - Verificar as horas sincronizadas por mês/ano
 - Ver a data da última sincronização
@@ -299,11 +306,13 @@ Na aba **Dados Sincronizados**, você pode:
 ### 7.4 Departamentos do Odoo vs. Departamentos Manuais
 
 **Departamentos sincronizados do Odoo:**
+
 - Campo "Horas Reais" está **protegido** (não editável manualmente)
 - Mostra indicador "(Sincronizado do Odoo)"
 - Horas são atualizadas apenas via sincronização
 
 **Departamentos criados manualmente:**
+
 - Campo "Horas Reais" está **editável** manualmente
 - Você pode inserir as horas diretamente no formulário
 - Não são afetados pela sincronização do Odoo
@@ -311,6 +320,7 @@ Na aba **Dados Sincronizados**, você pode:
 ### 7.5 Edição de Horas Disponíveis
 
 O campo **"Horas Disponíveis (alvo)"** é calculado automaticamente pela fórmula:
+
 ```
 HC Faturável × Horas/Mês × Utilização Alvo
 ```
@@ -324,12 +334,14 @@ Você pode editar manualmente este valor se necessário, mas por padrão ele é 
 ### 8.1 Horas Planejadas / Reais (`/dashboard/planned-hours`)
 
 Selecione um mês e ano, por exemplo:
+
 - **Mês**: `1`
 - **Ano**: `2025`
 
 Para cada departamento:
 
 #### Branding & Design
+
 - HC Faturável: `4`
 - Horas Planeadas/Mês: `160`
 - Utilização Alvo: `0.65`
@@ -337,6 +349,7 @@ Para cada departamento:
 - Receita de Projetos (€): `3000`
 
 #### Marketing Digital & Performance
+
 - HC Faturável: `3`
 - Horas Planeadas/Mês: `160`
 - Utilização Alvo: `0.70`
@@ -350,9 +363,11 @@ Clique em **Salvar**.
 No mesmo mês/ano (1/2025), defina objetivos:
 
 #### Branding & Design
+
 - Objetivo (€): `20000`
 
 #### Marketing Digital & Performance
+
 - Objetivo (€): `25000`
 
 Clique em **Salvar Objetivos**.
@@ -362,6 +377,7 @@ Clique em **Salvar Objetivos**.
 ## 9. Verificando os resultados
 
 Depois de criar:
+
 - Departamentos
 - Configurações globais
 - Custos fixos
@@ -383,6 +399,7 @@ Você deve conseguir:
    - Dashboard principal.
 
 Se algum campo aparecer com `-`:
+
 - Para colunas de custos/margens no catálogo, significa apenas **“não configurado”** (falta Custo Interno/h), não erro.
 - Para outros casos, confira se o formulário correspondente foi preenchido (por exemplo, objetivo mensal para aquele dept/mês).
 
@@ -398,7 +415,6 @@ Se algum campo aparecer com `-`:
   - Em formulários, campos com `*` são obrigatórios; os outros podem ficar vazios se a mensagem não indicar o contrário.
 
 Seguindo este tutorial com esses valores fictícios, você deve conseguir:
+
 - Criar e editar tudo sem erros de validação.
 - Ver números coerentes em todas as telas principais.
-
-

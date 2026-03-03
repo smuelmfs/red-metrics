@@ -24,11 +24,13 @@ Sistema interno de gestão de objetivos mínimos e performance por departamento 
 
 1. Clone o repositório
 2. Instale as dependências:
+
 ```bash
 npm install
 ```
 
 3. Configure o arquivo `.env`:
+
 ```env
 DATABASE_URL="mysql://root:@localhost:3306/red_metrics?schema=public"
 NEXTAUTH_URL="http://localhost:3000"
@@ -46,11 +48,13 @@ ODOO_ENCRYPTION_KEY="chave-de-32-caracteres-para-criptografia"
 ```
 
 4. Crie o banco de dados MySQL:
+
 ```sql
 CREATE DATABASE red_metrics;
 ```
 
 5. Execute as migrations do Prisma:
+
 ```bash
 npm run db:push
 # ou
@@ -62,17 +66,20 @@ npm run db:migrate
 Para fazer deploy na Vercel, você precisará de um banco MySQL hospedado. Veja o guia completo em [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md).
 
 **Resumo rápido:**
+
 - Use MySQL hospedado no Railway (gratuito e fácil)
 - Configure as variáveis de ambiente na Vercel
 - O build já está configurado para gerar o Prisma Client automaticamente
 - O schema já está configurado para MySQL, não precisa mudar nada!
 
 6. Gere o Prisma Client:
+
 ```bash
 npm run db:generate
 ```
 
 7. Inicie o servidor de desenvolvimento:
+
 ```bash
 npm run dev
 ```
@@ -122,6 +129,7 @@ O sistema usa NextAuth.js com autenticação por credenciais. Para criar o prime
 ## 🔄 Integração Odoo (Futuro)
 
 A integração com Odoo está planejada para:
+
 - Importar horas reais trabalhadas
 - Desabilitar edição manual quando integração estiver ativa
 - Sincronização automática
@@ -139,6 +147,7 @@ A integração com Odoo está planejada para:
 ## 🏗️ Arquitetura
 
 O sistema segue uma arquitetura limpa com:
+
 - **Separação de responsabilidades**: Lógica de negócio no backend
 - **Validação**: Zod schemas para validação de dados
 - **Auditoria**: Log de todas as mudanças
@@ -147,4 +156,3 @@ O sistema segue uma arquitetura limpa com:
 ## 📄 Licença
 
 Uso interno - RED Agency
-

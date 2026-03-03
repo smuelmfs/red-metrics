@@ -1,61 +1,72 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useToast } from '@/components/ui/toast'
-import Spinner from '@/components/ui/Spinner'
+import { useState } from "react";
+import { useToast } from "@/components/ui/toast";
+import Spinner from "@/components/ui/Spinner";
 
-export default function RecalculateButton({ year, month }: { year: number; month?: number }) {
-  const [loading, setLoading] = useState(false)
-  const { addToast } = useToast()
+export default function RecalculateButton({
+  year,
+  month,
+}: {
+  year: number;
+  month?: number;
+}) {
+  const [loading, setLoading] = useState(false);
+  const { addToast } = useToast();
 
   const handleRecalculate = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       // Recalcular todos os departamentos
-      const departmentsResponse = await fetch('/api/departments?activeOnly=true')
-      const departments = await departmentsResponse.json()
+      const departmentsResponse = await fetch(
+        "/api/departments?activeOnly=true",
+      );
+      const departments = await departmentsResponse.json();
 
-      let count = 0
+      let count = 0;
       for (const dept of departments) {
         // Recalcular o ano inteiro
-        await fetch('/api/results/calculate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        await fetch("/api/results/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             departmentId: dept.id,
             year,
-            recalculateYear: true
-          })
-        })
-        count++
+            recalculateYear: true,
+          }),
+        });
+        count++;
       }
 
       // Se um mês específico foi fornecido, também recalcular esse mês para garantir
       if (month) {
         for (const dept of departments) {
-          await fetch('/api/results/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          await fetch("/api/results/calculate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               departmentId: dept.id,
               month,
-              year
-            })
-          })
+              year,
+            }),
+          });
         }
       }
 
-      addToast(`Resultados recalculados para ${count} departamento(s)!`, 'success')
+      addToast(
+        `Resultados recalculados para ${count} departamento(s)!`,
+        "success",
+      );
       setTimeout(() => {
-        window.location.reload()
-      }, 1000)
+        window.location.reload();
+      }, 1000);
     } catch (error) {
-      console.error('Erro ao recalcular:', error)
-      addToast('Erro ao recalcular resultados', 'error')
+      console.error("Erro ao recalcular:", error);
+      addToast("Erro ao recalcular resultados", "error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <button
@@ -72,6 +83,5 @@ export default function RecalculateButton({ year, month }: { year: number; month
         <span className="whitespace-nowrap">Recalcular Resultados</span>
       )}
     </button>
-  )
+  );
 }
-

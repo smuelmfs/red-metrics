@@ -4,7 +4,5 @@
  * Exporta tipos e serviços relacionados a capacidade de horas.
  */
 
-export * from './domain'
-export * from './service'
-
-
+export * from "./domain";
+export * from "./service";

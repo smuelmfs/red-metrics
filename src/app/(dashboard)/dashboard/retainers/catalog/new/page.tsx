@@ -1,92 +1,98 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useToast } from '@/components/ui/toast'
-import Spinner from '@/components/ui/Spinner'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useToast } from "@/components/ui/toast";
+import Spinner from "@/components/ui/Spinner";
 
 interface Department {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 export default function NewRetainerCatalogPage() {
-  const router = useRouter()
-  const { addToast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [departments, setDepartments] = useState<Department[]>([])
+  const router = useRouter();
+  const { addToast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [formData, setFormData] = useState({
-    departmentId: '',
-    name: '',
+    departmentId: "",
+    name: "",
     monthlyPrice: 0,
     hoursPerMonth: 0,
     internalHourlyCost: null as number | null,
     baseHours: null as number | null,
-    basePrice: null as number | null
-  })
+    basePrice: null as number | null,
+  });
 
   useEffect(() => {
-    fetch('/api/departments?activeOnly=true')
-      .then(res => res.json())
-      .then(data => setDepartments(data))
-  }, [])
+    fetch("/api/departments?activeOnly=true")
+      .then((res) => res.json())
+      .then((data) => setDepartments(data));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/retainer-catalog', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
+      const response = await fetch("/api/retainer-catalog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Erro ao criar item do catálogo')
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao criar item do catálogo");
       }
 
-      addToast('Item do catálogo criado com sucesso!', 'success')
-      router.push('/dashboard/retainers/catalog')
-      router.refresh()
+      addToast("Item do catálogo criado com sucesso!", "success");
+      router.push("/dashboard/retainers/catalog");
+      router.refresh();
     } catch (err: any) {
-      const errorMessage = err.message || 'Erro ao criar item do catálogo'
-      setError(errorMessage)
-      addToast(errorMessage, 'error')
+      const errorMessage = err.message || "Erro ao criar item do catálogo";
+      setError(errorMessage);
+      addToast(errorMessage, "error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Preview de cálculos (apenas visualização - não são regras de negócio)
   // Os cálculos reais são feitos no backend quando necessário
-  const monthlyCost = formData.internalHourlyCost && formData.hoursPerMonth
-    ? formData.internalHourlyCost * formData.hoursPerMonth
-    : null
-  const monthlyMargin = monthlyCost !== null
-    ? formData.monthlyPrice - monthlyCost
-    : null
-  const marginPercentage = monthlyMargin !== null && formData.monthlyPrice > 0
-    ? (monthlyMargin / formData.monthlyPrice) * 100
-    : null
+  const monthlyCost =
+    formData.internalHourlyCost && formData.hoursPerMonth
+      ? formData.internalHourlyCost * formData.hoursPerMonth
+      : null;
+  const monthlyMargin =
+    monthlyCost !== null ? formData.monthlyPrice - monthlyCost : null;
+  const marginPercentage =
+    monthlyMargin !== null && formData.monthlyPrice > 0
+      ? (monthlyMargin / formData.monthlyPrice) * 100
+      : null;
 
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="mb-6">
-          <Link
-            href="/dashboard/retainers/catalog"
-            className="text-red-600 hover:text-red-800 mb-4 inline-block transition-colors"
-          >
-            ← Voltar para Catálogo
-          </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mt-4">Novo Item do Catálogo</h1>
+        <Link
+          href="/dashboard/retainers/catalog"
+          className="text-red-600 hover:text-red-800 mb-4 inline-block transition-colors"
+        >
+          ← Voltar para Catálogo
+        </Link>
+        <h1 className="text-3xl font-bold text-gray-900 mt-4">
+          Novo Item do Catálogo
+        </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-lg shadow-md p-6"
+      >
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
             {error}
@@ -95,25 +101,35 @@ export default function NewRetainerCatalogPage() {
 
         <div className="space-y-6">
           <div>
-            <label htmlFor="departmentId" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="departmentId"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Departamento *
             </label>
             <select
               id="departmentId"
               required
               value={formData.departmentId}
-              onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, departmentId: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               <option value="">Selecione um departamento</option>
-              {departments.map(dept => (
-                <option key={dept.id} value={dept.id}>{dept.name}</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Nome da Avença *
             </label>
             <input
@@ -121,7 +137,9 @@ export default function NewRetainerCatalogPage() {
               id="name"
               required
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               placeholder="Ex: Social Media - Premium"
             />
@@ -129,7 +147,10 @@ export default function NewRetainerCatalogPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="monthlyPrice" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="monthlyPrice"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Preço Mensal (€) *
               </label>
               <input
@@ -139,13 +160,21 @@ export default function NewRetainerCatalogPage() {
                 min="0"
                 step="0.01"
                 value={formData.monthlyPrice}
-                onChange={(e) => setFormData({ ...formData, monthlyPrice: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    monthlyPrice: parseFloat(e.target.value) || 0,
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
 
             <div>
-              <label htmlFor="hoursPerMonth" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="hoursPerMonth"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Horas por Mês *
               </label>
               <input
@@ -155,7 +184,12 @@ export default function NewRetainerCatalogPage() {
                 min="0"
                 step="0.1"
                 value={formData.hoursPerMonth}
-                onChange={(e) => setFormData({ ...formData, hoursPerMonth: parseFloat(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    hoursPerMonth: parseFloat(e.target.value) || 0,
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -163,7 +197,10 @@ export default function NewRetainerCatalogPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="internalHourlyCost" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="internalHourlyCost"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Custo Interno por Hora (€)
               </label>
               <input
@@ -171,8 +208,13 @@ export default function NewRetainerCatalogPage() {
                 id="internalHourlyCost"
                 min="0"
                 step="0.01"
-                value={formData.internalHourlyCost || ''}
-                onChange={(e) => setFormData({ ...formData, internalHourlyCost: parseFloat(e.target.value) || null })}
+                value={formData.internalHourlyCost || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    internalHourlyCost: parseFloat(e.target.value) || null,
+                  })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -183,7 +225,11 @@ export default function NewRetainerCatalogPage() {
               </label>
               <input
                 type="text"
-                value={monthlyCost !== null ? `€${monthlyCost.toFixed(2)}` : 'Preencha custo/hora'}
+                value={
+                  monthlyCost !== null
+                    ? `€${monthlyCost.toFixed(2)}`
+                    : "Preencha custo/hora"
+                }
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
               />
@@ -209,14 +255,18 @@ export default function NewRetainerCatalogPage() {
                 </label>
                 <input
                   type="text"
-                  value={marginPercentage !== null ? `${marginPercentage.toFixed(1)}%` : '-'}
+                  value={
+                    marginPercentage !== null
+                      ? `${marginPercentage.toFixed(1)}%`
+                      : "-"
+                  }
                   disabled
                   className={`w-full px-3 py-2 border border-gray-300 rounded-md bg-white font-medium ${
                     marginPercentage !== null && marginPercentage >= 30
-                      ? 'text-green-600'
+                      ? "text-green-600"
                       : marginPercentage !== null && marginPercentage >= 20
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
+                        ? "text-yellow-600"
+                        : "text-red-600"
                   }`}
                 />
               </div>
@@ -241,13 +291,12 @@ export default function NewRetainerCatalogPage() {
                   <span>Salvando...</span>
                 </>
               ) : (
-                'Criar Item'
+                "Criar Item"
               )}
             </button>
           </div>
         </div>
       </form>
     </div>
-  )
+  );
 }
-

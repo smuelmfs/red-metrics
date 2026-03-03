@@ -1,82 +1,82 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import Link from 'next/link'
-import { useToast } from '@/components/ui/toast'
-import Spinner from '@/components/ui/Spinner'
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { useToast } from "@/components/ui/toast";
+import Spinner from "@/components/ui/Spinner";
 
 interface Department {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface RetainerFormData {
-  departmentId: string
-  name: string
-  type: string
-  monthlyPrice: number
-  quantity: number
-  startDate: string
-  endDate: string | null
-  notes: string
+  departmentId: string;
+  name: string;
+  type: string;
+  monthlyPrice: number;
+  quantity: number;
+  startDate: string;
+  endDate: string | null;
+  notes: string;
 }
 
 export default function EditRetainerPage() {
-  const router = useRouter()
-  const params = useParams()
-  const { addToast } = useToast()
-  const retainerId = params.id as string
+  const router = useRouter();
+  const params = useParams();
+  const { addToast } = useToast();
+  const retainerId = params.id as string;
 
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [departments, setDepartments] = useState<Department[]>([])
-  const [formData, setFormData] = useState<RetainerFormData | null>(null)
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [formData, setFormData] = useState<RetainerFormData | null>(null);
 
   useEffect(() => {
     // Carregar departamentos ativos
-    fetch('/api/departments?activeOnly=true')
-      .then(res => res.json())
-      .then(data => setDepartments(data))
+    fetch("/api/departments?activeOnly=true")
+      .then((res) => res.json())
+      .then((data) => setDepartments(data));
 
     // Carregar dados da avença
     fetch(`/api/retainers/${retainerId}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.error) {
-          setError(data.error)
+          setError(data.error);
         } else {
           setFormData({
             departmentId: data.departmentId,
             name: data.name,
-            type: data.type || '',
+            type: data.type || "",
             monthlyPrice: Number(data.monthlyPrice),
             quantity: data.quantity,
             startDate: data.startDate?.slice(0, 10),
             endDate: data.endDate ? data.endDate.slice(0, 10) : null,
-            notes: data.notes || ''
-          })
+            notes: data.notes || "",
+          });
         }
-        setLoading(false)
+        setLoading(false);
       })
       .catch(() => {
-        setError('Erro ao carregar avença')
-        setLoading(false)
-      })
-  }, [retainerId])
+        setError("Erro ao carregar avença");
+        setLoading(false);
+      });
+  }, [retainerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formData) return
+    e.preventDefault();
+    if (!formData) return;
 
-    setError('')
-    setSaving(true)
+    setError("");
+    setSaving(true);
 
     try {
       const response = await fetch(`/api/retainers/${retainerId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           departmentId: formData.departmentId,
           name: formData.name,
@@ -85,48 +85,51 @@ export default function EditRetainerPage() {
           quantity: formData.quantity,
           startDate: new Date(formData.startDate),
           endDate: formData.endDate ? new Date(formData.endDate) : null,
-          notes: formData.notes || null
-        })
-      })
+          notes: formData.notes || null,
+        }),
+      });
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Erro ao atualizar avença')
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao atualizar avença");
       }
 
-      addToast('Avença atualizada com sucesso!', 'success')
-      router.push('/dashboard/retainers')
-      router.refresh()
+      addToast("Avença atualizada com sucesso!", "success");
+      router.push("/dashboard/retainers");
+      router.refresh();
     } catch (err: any) {
-      const errorMessage = err.message || 'Erro ao atualizar avença'
-      setError(errorMessage)
-      addToast(errorMessage, 'error')
+      const errorMessage = err.message || "Erro ao atualizar avença";
+      setError(errorMessage);
+      addToast(errorMessage, "error");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const monthlyRevenuePreview = formData
     ? formData.monthlyPrice * formData.quantity
-    : 0
+    : 0;
 
   if (loading) {
     return (
       <div className="w-full max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
       </div>
-    )
+    );
   }
 
   if (!formData) {
     return (
       <div className="w-full max-w-7xl mx-auto">
         <p className="text-red-600">Avença não encontrada</p>
-        <Link href="/dashboard/retainers" className="text-red-600 hover:text-red-800 mt-4 inline-block transition-colors">
+        <Link
+          href="/dashboard/retainers"
+          className="text-red-600 hover:text-red-800 mt-4 inline-block transition-colors"
+        >
           ← Voltar
         </Link>
       </div>
-    )
+    );
   }
 
   return (
@@ -141,7 +144,10 @@ export default function EditRetainerPage() {
         <h1 className="text-3xl font-bold text-gray-900 mt-4">Editar Avença</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-lg shadow-md p-6"
+      >
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
             {error}
@@ -150,25 +156,35 @@ export default function EditRetainerPage() {
 
         <div className="space-y-6">
           <div>
-            <label htmlFor="departmentId" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="departmentId"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Departamento *
             </label>
             <select
               id="departmentId"
               required
               value={formData.departmentId}
-              onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, departmentId: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               <option value="">Selecione um departamento</option>
-              {departments.map(dept => (
-                <option key={dept.id} value={dept.id}>{dept.name}</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Nome do Cliente/Projeto *
             </label>
             <input
@@ -176,27 +192,37 @@ export default function EditRetainerPage() {
               id="name"
               required
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Tipo de Avença
               </label>
               <input
                 type="text"
                 id="type"
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, type: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
 
             <div>
-              <label htmlFor="monthlyPrice" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="monthlyPrice"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Preço Mensal (€) *
               </label>
               <input
@@ -207,8 +233,13 @@ export default function EditRetainerPage() {
                 step="0.01"
                 value={formData.monthlyPrice}
                 onChange={(e) => {
-                  const value = e.target.value
-                  setFormData({ ...formData, monthlyPrice: value ? parseFloat(value) : formData.monthlyPrice })
+                  const value = e.target.value;
+                  setFormData({
+                    ...formData,
+                    monthlyPrice: value
+                      ? parseFloat(value)
+                      : formData.monthlyPrice,
+                  });
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
@@ -217,7 +248,10 @@ export default function EditRetainerPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="quantity"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Quantidade
               </label>
               <input
@@ -226,8 +260,11 @@ export default function EditRetainerPage() {
                 min="1"
                 value={formData.quantity}
                 onChange={(e) => {
-                  const value = e.target.value
-                  setFormData({ ...formData, quantity: value ? parseInt(value, 10) : formData.quantity })
+                  const value = e.target.value;
+                  setFormData({
+                    ...formData,
+                    quantity: value ? parseInt(value, 10) : formData.quantity,
+                  });
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
@@ -239,7 +276,7 @@ export default function EditRetainerPage() {
               </label>
               <input
                 type="text"
-                value={`€${monthlyRevenuePreview.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                value={`€${monthlyRevenuePreview.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
                 title="Preview - cálculo real é feito no backend"
@@ -249,7 +286,10 @@ export default function EditRetainerPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Data de Início *
               </label>
               <input
@@ -257,34 +297,46 @@ export default function EditRetainerPage() {
                 id="startDate"
                 required
                 value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, startDate: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
 
             <div>
-              <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="endDate"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Data de Término (opcional)
               </label>
               <input
                 type="date"
                 id="endDate"
-                value={formData.endDate || ''}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value || null })}
+                value={formData.endDate || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, endDate: e.target.value || null })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="notes"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Notas
             </label>
             <textarea
               id="notes"
               rows={3}
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
@@ -307,14 +359,12 @@ export default function EditRetainerPage() {
                   <span>Salvando...</span>
                 </>
               ) : (
-                'Salvar Alterações'
+                "Salvar Alterações"
               )}
             </button>
           </div>
         </div>
       </form>
     </div>
-  )
+  );
 }
-
-

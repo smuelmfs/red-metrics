@@ -1,95 +1,99 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useToast } from '@/components/ui/toast'
-import Spinner from '@/components/ui/Spinner'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/toast";
+import Spinner from "@/components/ui/Spinner";
 
 interface SerializedDepartment {
-  id: string
-  name: string
-  code: string | null
-  billableHeadcount: number
-  costPerPersonPerMonth: number | null
-  targetUtilization: number
-  averageHourlyRate: number
-  directCostAnnual: number | null
-  billableHoursAnnual: number | null
-  revenueCapacityAnnual: number | null
-  overheadAllocatedAnnual: number | null
-  minimumRevenueAnnual: number | null
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  id: string;
+  name: string;
+  code: string | null;
+  billableHeadcount: number;
+  costPerPersonPerMonth: number | null;
+  targetUtilization: number;
+  averageHourlyRate: number;
+  directCostAnnual: number | null;
+  billableHoursAnnual: number | null;
+  revenueCapacityAnnual: number | null;
+  overheadAllocatedAnnual: number | null;
+  minimumRevenueAnnual: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface SerializedPlannedHours {
-  id?: string
-  departmentId: string
-  month: number
-  year: number
-  billableHeadcount?: number | null
-  targetHoursPerMonth?: number | null
-  targetUtilization?: number | null
-  targetAvailableHours?: number | null
-  actualBillableHours?: number | null
-  actualUtilization?: number | null
-  syncedFromOdoo?: boolean
-  lastSyncedAt?: string | null
-  retainerRevenue?: number | null
-  projectRevenue?: number | null
-  totalRevenue?: number | null
-  revenuePerHour?: number | null
+  id?: string;
+  departmentId: string;
+  month: number;
+  year: number;
+  billableHeadcount?: number | null;
+  targetHoursPerMonth?: number | null;
+  targetUtilization?: number | null;
+  targetAvailableHours?: number | null;
+  actualBillableHours?: number | null;
+  actualUtilization?: number | null;
+  syncedFromOdoo?: boolean;
+  lastSyncedAt?: string | null;
+  retainerRevenue?: number | null;
+  projectRevenue?: number | null;
+  totalRevenue?: number | null;
+  revenuePerHour?: number | null;
 }
 
 interface PlannedHoursFormProps {
-  department: SerializedDepartment
-  month: number
-  year: number
-  initialData?: SerializedPlannedHours
-  odooEnabled?: boolean
-  hasOdooMapping?: boolean
+  department: SerializedDepartment;
+  month: number;
+  year: number;
+  initialData?: SerializedPlannedHours;
+  odooEnabled?: boolean;
+  hasOdooMapping?: boolean;
 }
 
-export default function PlannedHoursForm({ 
-  department, 
-  month, 
-  year, 
+export default function PlannedHoursForm({
+  department,
+  month,
+  year,
   initialData,
   odooEnabled = false,
-  hasOdooMapping = false
+  hasOdooMapping = false,
 }: PlannedHoursFormProps) {
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const { addToast } = useToast()
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { addToast } = useToast();
   const [formData, setFormData] = useState<{
-    billableHeadcount: number | null
-    targetHoursPerMonth: number | null
-    targetUtilization: number | null
-    targetAvailableHours: number | null
-    actualBillableHours: number | null
-    projectRevenue: number | null
+    billableHeadcount: number | null;
+    targetHoursPerMonth: number | null;
+    targetUtilization: number | null;
+    targetAvailableHours: number | null;
+    actualBillableHours: number | null;
+    projectRevenue: number | null;
   }>({
-    billableHeadcount: initialData?.billableHeadcount ?? department.billableHeadcount,
+    billableHeadcount:
+      initialData?.billableHeadcount ?? department.billableHeadcount,
     targetHoursPerMonth: initialData?.targetHoursPerMonth ?? 160,
-    targetUtilization: initialData?.targetUtilization ?? Number(department.targetUtilization),
+    targetUtilization:
+      initialData?.targetUtilization ?? Number(department.targetUtilization),
     targetAvailableHours: initialData?.targetAvailableHours ?? null,
     actualBillableHours: initialData?.actualBillableHours ?? null,
-    projectRevenue: initialData?.projectRevenue ?? null
-  })
+    projectRevenue: initialData?.projectRevenue ?? null,
+  });
 
   // Atualizar formData quando initialData, month ou year mudarem
   useEffect(() => {
     if (initialData) {
       // Há dados salvos para este mês/ano: usar os dados salvos
       setFormData({
-        billableHeadcount: initialData.billableHeadcount ?? department.billableHeadcount,
+        billableHeadcount:
+          initialData.billableHeadcount ?? department.billableHeadcount,
         targetHoursPerMonth: initialData.targetHoursPerMonth ?? 160,
-        targetUtilization: initialData.targetUtilization ?? Number(department.targetUtilization),
+        targetUtilization:
+          initialData.targetUtilization ?? Number(department.targetUtilization),
         targetAvailableHours: initialData.targetAvailableHours ?? null,
         actualBillableHours: initialData.actualBillableHours ?? null,
-        projectRevenue: initialData.projectRevenue ?? null
-      })
+        projectRevenue: initialData.projectRevenue ?? null,
+      });
     } else {
       // Não há dados salvos para este mês/ano: resetar para valores padrão/vazios
       setFormData({
@@ -98,39 +102,51 @@ export default function PlannedHoursForm({
         targetUtilization: Number(department.targetUtilization),
         targetAvailableHours: null,
         actualBillableHours: null,
-        projectRevenue: null
-      })
+        projectRevenue: null,
+      });
     }
-  }, [initialData, month, year, department.billableHeadcount, department.targetUtilization])
+  }, [
+    initialData,
+    month,
+    year,
+    department.billableHeadcount,
+    department.targetUtilization,
+  ]);
 
   // Verificar se houve mudanças nos dados
   const hasChanges = () => {
-    if (!initialData) return false
-    
-    // Comparar cada campo, tratando null/undefined como equivalentes
-    const normalize = (val: number | null | undefined) => val ?? null
-    
-    return (
-      normalize(formData.billableHeadcount) !== normalize(initialData.billableHeadcount) ||
-      normalize(formData.targetHoursPerMonth) !== normalize(initialData.targetHoursPerMonth) ||
-      normalize(formData.targetUtilization) !== normalize(initialData.targetUtilization) ||
-      normalize(formData.targetAvailableHours) !== normalize(initialData.targetAvailableHours) ||
-      normalize(formData.actualBillableHours) !== normalize(initialData.actualBillableHours) ||
-      normalize(formData.projectRevenue) !== normalize(initialData.projectRevenue)
-    )
-  }
+    if (!initialData) return false;
 
-  const hasExistingData = !!initialData
-  const hasUnsavedChanges = hasChanges()
+    // Comparar cada campo, tratando null/undefined como equivalentes
+    const normalize = (val: number | null | undefined) => val ?? null;
+
+    return (
+      normalize(formData.billableHeadcount) !==
+        normalize(initialData.billableHeadcount) ||
+      normalize(formData.targetHoursPerMonth) !==
+        normalize(initialData.targetHoursPerMonth) ||
+      normalize(formData.targetUtilization) !==
+        normalize(initialData.targetUtilization) ||
+      normalize(formData.targetAvailableHours) !==
+        normalize(initialData.targetAvailableHours) ||
+      normalize(formData.actualBillableHours) !==
+        normalize(initialData.actualBillableHours) ||
+      normalize(formData.projectRevenue) !==
+        normalize(initialData.projectRevenue)
+    );
+  };
+
+  const hasExistingData = !!initialData;
+  const hasUnsavedChanges = hasChanges();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/planned-hours', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/planned-hours", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           departmentId: department.id,
           month,
@@ -141,36 +157,47 @@ export default function PlannedHoursForm({
           // Enviar valor manual se existir, senão null para calcular automaticamente
           targetAvailableHours: formData.targetAvailableHours,
           actualBillableHours: formData.actualBillableHours,
-          projectRevenue: formData.projectRevenue
-        })
-      })
+          projectRevenue: formData.projectRevenue,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error('Erro ao salvar horas planejadas')
+        throw new Error("Erro ao salvar horas planejadas");
       }
 
-      addToast('Horas planejadas salvas com sucesso!', 'success')
+      addToast("Horas planejadas salvas com sucesso!", "success");
       // Recarregar a página para mostrar os dados atualizados
-      router.refresh()
+      router.refresh();
     } catch (error) {
-      addToast('Erro ao salvar. Tente novamente.', 'error')
+      addToast("Erro ao salvar. Tente novamente.", "error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Calcular horas disponíveis automaticamente se não houver valor manual
-  const targetAvailableHoursPreview = formData.billableHeadcount && formData.targetHoursPerMonth && formData.targetUtilization
-    ? Number(formData.billableHeadcount) * Number(formData.targetHoursPerMonth) * Number(formData.targetUtilization)
-    : null
-  
+  const targetAvailableHoursPreview =
+    formData.billableHeadcount &&
+    formData.targetHoursPerMonth &&
+    formData.targetUtilization
+      ? Number(formData.billableHeadcount) *
+        Number(formData.targetHoursPerMonth) *
+        Number(formData.targetUtilization)
+      : null;
+
   // Usar valor manual se existir, senão usar o calculado
-  const displayAvailableHours = formData.targetAvailableHours ?? targetAvailableHoursPreview
+  const displayAvailableHours =
+    formData.targetAvailableHours ?? targetAvailableHoursPreview;
 
   return (
-    <form onSubmit={handleSubmit} className="border border-gray-200 rounded-lg p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="border border-gray-200 rounded-lg p-4"
+    >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{department.name}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          {department.name}
+        </h3>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -181,10 +208,15 @@ export default function PlannedHoursForm({
           <input
             type="number"
             min="1"
-            value={formData.billableHeadcount || ''}
+            value={formData.billableHeadcount || ""}
             onChange={(e) => {
-              const value = e.target.value
-              setFormData({ ...formData, billableHeadcount: value ? parseInt(value, 10) : (formData.billableHeadcount ?? null) })
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                billableHeadcount: value
+                  ? parseInt(value, 10)
+                  : (formData.billableHeadcount ?? null),
+              });
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
           />
@@ -198,10 +230,15 @@ export default function PlannedHoursForm({
             type="number"
             min="0"
             step="0.01"
-            value={formData.targetHoursPerMonth || ''}
+            value={formData.targetHoursPerMonth || ""}
             onChange={(e) => {
-              const value = e.target.value
-              setFormData({ ...formData, targetHoursPerMonth: value ? parseFloat(value) : (formData.targetHoursPerMonth ?? null) })
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                targetHoursPerMonth: value
+                  ? parseFloat(value)
+                  : (formData.targetHoursPerMonth ?? null),
+              });
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
           />
@@ -216,10 +253,15 @@ export default function PlannedHoursForm({
             min="0"
             max="1"
             step="0.01"
-            value={formData.targetUtilization || ''}
+            value={formData.targetUtilization || ""}
             onChange={(e) => {
-              const value = e.target.value
-              setFormData({ ...formData, targetUtilization: value ? parseFloat(value) : (formData.targetUtilization ?? null) })
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                targetUtilization: value
+                  ? parseFloat(value)
+                  : (formData.targetUtilization ?? null),
+              });
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
           />
@@ -238,10 +280,15 @@ export default function PlannedHoursForm({
             type="number"
             min="0"
             step="0.01"
-            value={displayAvailableHours || ''}
+            value={displayAvailableHours || ""}
             onChange={(e) => {
-              const value = e.target.value
-              setFormData({ ...formData, targetAvailableHours: value ? parseFloat(value) : (formData.targetAvailableHours ?? null) })
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                targetAvailableHours: value
+                  ? parseFloat(value)
+                  : (formData.targetAvailableHours ?? null),
+              });
             }}
             className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
             title="Calculado automaticamente: HC × Horas/Mês × Utilização (pode editar manualmente)"
@@ -250,35 +297,53 @@ export default function PlannedHoursForm({
 
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">
-            Horas Reais {odooEnabled && hasOdooMapping && initialData?.syncedFromOdoo && (
-              <span className="text-green-600 text-xs">(Sincronizado do Odoo)</span>
+            Horas Reais{" "}
+            {odooEnabled && hasOdooMapping && initialData?.syncedFromOdoo && (
+              <span className="text-green-600 text-xs">
+                (Sincronizado do Odoo)
+              </span>
             )}
           </label>
           <input
             type="number"
             min="0"
             step="0.01"
-            value={formData.actualBillableHours || ''}
+            value={formData.actualBillableHours || ""}
             onChange={(e) => {
-              const value = e.target.value
-              setFormData({ ...formData, actualBillableHours: value ? parseFloat(value) : (formData.actualBillableHours ?? null) })
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                actualBillableHours: value
+                  ? parseFloat(value)
+                  : (formData.actualBillableHours ?? null),
+              });
             }}
-            disabled={odooEnabled && hasOdooMapping && initialData?.syncedFromOdoo}
+            disabled={
+              odooEnabled && hasOdooMapping && initialData?.syncedFromOdoo
+            }
             className={`w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-red-500 ${
               odooEnabled && hasOdooMapping && initialData?.syncedFromOdoo
-                ? 'bg-gray-100 cursor-not-allowed'
-                : ''
+                ? "bg-gray-100 cursor-not-allowed"
+                : ""
             }`}
-            placeholder={initialData?.syncedFromOdoo ? "Horas do Odoo" : "Digite as horas reais"}
+            placeholder={
+              initialData?.syncedFromOdoo
+                ? "Horas do Odoo"
+                : "Digite as horas reais"
+            }
           />
-          {odooEnabled && hasOdooMapping && initialData?.syncedFromOdoo && initialData?.lastSyncedAt && (
-            <p className="text-xs text-gray-500 mt-1">
-              Última sincronização: {new Date(initialData.lastSyncedAt).toLocaleString('pt-BR')}
-            </p>
-          )}
+          {odooEnabled &&
+            hasOdooMapping &&
+            initialData?.syncedFromOdoo &&
+            initialData?.lastSyncedAt && (
+              <p className="text-xs text-gray-500 mt-1">
+                Última sincronização:{" "}
+                {new Date(initialData.lastSyncedAt).toLocaleString("pt-BR")}
+              </p>
+            )}
           {!initialData?.syncedFromOdoo && (
             <p className="text-xs text-gray-500 mt-1">
-              {odooEnabled 
+              {odooEnabled
                 ? "Campo editável manualmente. Use a sincronização do Odoo para preencher automaticamente."
                 : "Campo editável manualmente."}
             </p>
@@ -295,10 +360,15 @@ export default function PlannedHoursForm({
             type="number"
             min="0"
             step="0.01"
-            value={formData.projectRevenue || ''}
+            value={formData.projectRevenue || ""}
             onChange={(e) => {
-              const value = e.target.value
-              setFormData({ ...formData, projectRevenue: value ? parseFloat(value) : (formData.projectRevenue ?? null) })
+              const value = e.target.value;
+              setFormData({
+                ...formData,
+                projectRevenue: value
+                  ? parseFloat(value)
+                  : (formData.projectRevenue ?? null),
+              });
             }}
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
           />
@@ -315,13 +385,14 @@ export default function PlannedHoursForm({
                 <Spinner size="sm" className="!flex" />
                 <span>Salvando...</span>
               </>
+            ) : hasExistingData && hasUnsavedChanges ? (
+              "Salvar Alterações"
             ) : (
-              hasExistingData && hasUnsavedChanges ? 'Salvar Alterações' : 'Salvar'
+              "Salvar"
             )}
           </button>
         </div>
       </div>
     </form>
-  )
+  );
 }
-

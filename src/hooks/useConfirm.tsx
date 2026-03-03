@@ -1,47 +1,49 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import Modal from '@/components/ui/modal'
+import { useState, useCallback } from "react";
+import Modal from "@/components/ui/modal";
 
 interface ConfirmOptions {
-  title: string
-  message: string
-  confirmText?: string
-  cancelText?: string
-  type?: 'info' | 'warning' | 'danger'
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  type?: "info" | "warning" | "danger";
 }
 
 export function useConfirm() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<ConfirmOptions>({
-    title: 'Confirmar',
-    message: 'Tem certeza?',
-  })
-  const [resolvePromise, setResolvePromise] = useState<((value: boolean) => void) | null>(null)
+    title: "Confirmar",
+    message: "Tem certeza?",
+  });
+  const [resolvePromise, setResolvePromise] = useState<
+    ((value: boolean) => void) | null
+  >(null);
 
   const confirm = useCallback((opts: ConfirmOptions): Promise<boolean> => {
     return new Promise((resolve) => {
-      setOptions(opts)
-      setIsOpen(true)
-      setResolvePromise(() => resolve)
-    })
-  }, [])
+      setOptions(opts);
+      setIsOpen(true);
+      setResolvePromise(() => resolve);
+    });
+  }, []);
 
   const handleConfirm = useCallback(() => {
     if (resolvePromise) {
-      resolvePromise(true)
-      setResolvePromise(null)
+      resolvePromise(true);
+      setResolvePromise(null);
     }
-    setIsOpen(false)
-  }, [resolvePromise])
+    setIsOpen(false);
+  }, [resolvePromise]);
 
   const handleCancel = useCallback(() => {
     if (resolvePromise) {
-      resolvePromise(false)
-      setResolvePromise(null)
+      resolvePromise(false);
+      setResolvePromise(null);
     }
-    setIsOpen(false)
-  }, [resolvePromise])
+    setIsOpen(false);
+  }, [resolvePromise]);
 
   const ConfirmDialog = () => (
     <Modal
@@ -56,8 +58,7 @@ export function useConfirm() {
     >
       <p>{options.message}</p>
     </Modal>
-  )
+  );
 
-  return { confirm, ConfirmDialog }
+  return { confirm, ConfirmDialog };
 }
-

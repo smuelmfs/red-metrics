@@ -1,50 +1,50 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { signIn, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import Logo from '@/components/ui/Logo'
-import Spinner from '@/components/ui/Spinner'
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Logo from "@/components/ui/Logo";
+import Spinner from "@/components/ui/Spinner";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { data: session, status } = useSession()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Redirecionar se já estiver logado
   useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/dashboard')
+    if (status === "authenticated") {
+      router.push("/dashboard");
     }
-  }, [status, router])
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email,
         password,
-        redirect: false
-      })
+        redirect: false,
+      });
 
       if (result?.error) {
-        setError('Email ou senha inválidos')
+        setError("Email ou senha inválidos");
       } else {
-        router.push('/dashboard')
-        router.refresh()
+        router.push("/dashboard");
+        router.refresh();
       }
     } catch (err) {
-      setError('Erro ao fazer login')
+      setError("Erro ao fazer login");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -111,13 +111,12 @@ export default function LoginPage() {
                   <span>Entrando...</span>
                 </>
               ) : (
-                'Entrar'
+                "Entrar"
               )}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
-

@@ -32,6 +32,7 @@ Bem-vindo ao RED Metrics! Este guia explica como usar o sistema para acompanhar 
 ### 1.2 Navegação
 
 Após fazer login, você verá:
+
 - **Menu lateral** (no desktop): com todas as opções do sistema
 - **Menu mobile** (no celular): ícone de menu no topo para acessar as opções
 
@@ -44,12 +45,12 @@ O Dashboard é a primeira tela que você vê após fazer login. Ele mostra uma *
 ### 2.1 O que você vê no Dashboard
 
 - **Objetivo Total**: Valor total em euros que a empresa precisa atingir no mês
-  - *Exemplo: €66.080,00 (soma de todos os objetivos dos departamentos)*
+  - _Exemplo: €66.080,00 (soma de todos os objetivos dos departamentos)_
 - **Performance Geral**: Percentual de quanto foi atingido do objetivo
-  - *Exemplo: 90% (significa que atingiu 90% do objetivo de €66.080, ou seja, €59.440)*
+  - _Exemplo: 90% (significa que atingiu 90% do objetivo de €66.080, ou seja, €59.440)_
 - **Resumo por Departamento**: Cards mostrando a performance de cada departamento
-  - *Exemplo: "Branding & Design - 92% | Marketing Digital - 105% | Web/UX/Dev - 78%"*
-- **Gráficos**: 
+  - _Exemplo: "Branding & Design - 92% | Marketing Digital - 105% | Web/UX/Dev - 78%"_
+- **Gráficos**:
   - Gráfico de Performance (comparação entre departamentos)
   - Gráfico de Receita (evolução ao longo do tempo)
   - Classificação de Departamentos (ranking)
@@ -72,6 +73,7 @@ O Dashboard é a primeira tela que você vê após fazer login. Ele mostra uma *
 ```
 
 **Interpretação:**
+
 - 🟢 Verde: Marketing Digital superou o objetivo (105%)
 - 🟡 Amarelo: Branding & Design está próximo (92%)
 - 🔴 Vermelho: Web/UX/Dev precisa melhorar (78%)
@@ -79,6 +81,7 @@ O Dashboard é a primeira tela que você vê após fazer login. Ele mostra uma *
 ### 2.2 Filtrar por Mês/Ano
 
 No topo do Dashboard, você pode:
+
 - Selecionar o **mês** que deseja visualizar
 - Selecionar o **ano** que deseja visualizar
 - Clicar em **Recalcular** para atualizar os dados
@@ -86,6 +89,7 @@ No topo do Dashboard, você pode:
 ### 2.3 Personalizar o Dashboard
 
 Você pode:
+
 - **Arrastar** os cards/gráficos para reorganizar
 - **Ocultar** widgets que não deseja ver
 - As alterações são salvas automaticamente
@@ -105,6 +109,7 @@ Você pode:
    - Status (Ativo/Inativo)
 
 **Exemplo de departamentos que você pode ver:**
+
 - **Branding & Design** (código: BRAND)
   - 4 pessoas faturáveis
   - Taxa média: €45/hora
@@ -156,11 +161,11 @@ Performance Janeiro 2026:
 
 **Exemplo de Visão Anual (2026):**
 
-| Departamento | Jan | Fev | Mar | Abr | Mai | Jun | Total Anual |
-|--------------|-----|-----|-----|-----|-----|-----|-------------|
-| Branding & Design | 92% | 95% | 88% | 102% | 98% | 94% | **94.8%** |
-| Marketing Digital | 105% | 108% | 97% | 112% | 103% | 110% | **106%** |
-| Web / UX / Dev | 78% | 82% | 85% | 90% | 88% | 92% | **85.8%** |
+| Departamento      | Jan  | Fev  | Mar | Abr  | Mai  | Jun  | Total Anual |
+| ----------------- | ---- | ---- | --- | ---- | ---- | ---- | ----------- |
+| Branding & Design | 92%  | 95%  | 88% | 102% | 98%  | 94%  | **94.8%**   |
+| Marketing Digital | 105% | 108% | 97% | 112% | 103% | 110% | **106%**    |
+| Web / UX / Dev    | 78%  | 82%  | 85% | 90%  | 88%  | 92%  | **85.8%**   |
 
 ### 3.3 Visualização Anual
 
@@ -186,19 +191,20 @@ A página de **Planejamento de Horas** permite visualizar e editar as horas plan
 
 **Exemplo de dados que você pode ver (Janeiro 2026):**
 
-| Departamento | Horas Planejadas | Horas Reais | Horas Disponíveis | Status |
-|--------------|------------------|-------------|-------------------|--------|
-| Branding & Design | 520h | 485h | 416h | ✅ OK |
-| Marketing Digital | 480h | 520h | 384h | ⚠️ Acima do planejado |
-| Web / UX / Dev | 640h | 600h | 512h | ✅ OK |
-| RED® MEDIA | 570h | 550h | 456h | ✅ OK |
-| MyPRINT® | 576h | 580h | 461h | ⚠️ Acima do planejado |
+| Departamento      | Horas Planejadas | Horas Reais | Horas Disponíveis | Status                |
+| ----------------- | ---------------- | ----------- | ----------------- | --------------------- |
+| Branding & Design | 520h             | 485h        | 416h              | ✅ OK                 |
+| Marketing Digital | 480h             | 520h        | 384h              | ⚠️ Acima do planejado |
+| Web / UX / Dev    | 640h             | 600h        | 512h              | ✅ OK                 |
+| RED® MEDIA        | 570h             | 550h        | 456h              | ✅ OK                 |
+| MyPRINT®          | 576h             | 580h        | 461h              | ⚠️ Acima do planejado |
 
 **Como interpretar:**
+
 - **Horas Planejadas**: O que foi planejado trabalhar no mês
 - **Horas Reais**: O que realmente foi trabalhado (vem do Odoo ou manual)
 - **Horas Disponíveis (alvo)**: Horas que devem ser faturáveis (calculado automaticamente)
-- **Status**: 
+- **Status**:
   - ✅ OK: Dentro do esperado
   - ⚠️ Acima: Trabalhou mais horas do que o planejado
   - ⚠️ Abaixo: Trabalhou menos horas do que o planejado
@@ -210,21 +216,23 @@ A página de **Planejamento de Horas** permite visualizar e editar as horas plan
 1. Clique em **Editar** na linha do departamento desejado
 2. Preencha os campos:
    - **Horas Planejadas**: Quantas horas o departamento deve trabalhar
-     - *Exemplo: 520 horas (4 pessoas × 160 horas/mês × 0,8125 de utilização)*
+     - _Exemplo: 520 horas (4 pessoas × 160 horas/mês × 0,8125 de utilização)_
    - **Horas Reais**: Quantas horas foram realmente trabalhadas (apenas para departamentos manuais)
-     - *Exemplo: 485 horas (o que realmente foi trabalhado no mês)*
+     - _Exemplo: 485 horas (o que realmente foi trabalhado no mês)_
    - **Horas Disponíveis (alvo)**: Horas disponíveis para faturar
-     - *Exemplo: 416 horas (calculado automaticamente, mas pode ser editado)*
+     - _Exemplo: 416 horas (calculado automaticamente, mas pode ser editado)_
 3. Clique em **Salvar**
 
 **Exemplo prático - Editar horas do "Branding & Design" (Janeiro 2026):**
 
 **Situação inicial:**
+
 - Horas Planejadas: `520h` (4 pessoas × 160h × 0,8125)
 - Horas Reais: `485h` (vem do Odoo - protegido)
 - Horas Disponíveis (alvo): `416h` (calculado automaticamente)
 
 **Você decide ajustar:**
+
 - Horas Planejadas: `520h` (mantém)
 - Horas Reais: `485h` (não pode editar - vem do Odoo)
 - Horas Disponíveis (alvo): `420h` (edita para `420` porque quer aumentar o alvo)
@@ -232,11 +240,13 @@ A página de **Planejamento de Horas** permite visualizar e editar as horas plan
 **Resultado:** O sistema recalcula os objetivos baseado nas novas horas disponíveis.
 
 **Cálculo automático:**
+
 - Horas Disponíveis = Horas Planejadas × Utilização Faturável
 - Exemplo: 520h × 0,80 (80%) = 416h
 - Mas você pode editar manualmente para `420h` se necessário
 
-**Importante:** 
+**Importante:**
+
 - Departamentos que vêm do Odoo têm as "Horas Reais" sincronizadas automaticamente
 - Você pode editar "Horas Disponíveis (alvo)" mesmo para departamentos do Odoo
 
@@ -258,24 +268,27 @@ Os **Objetivos** definem quanto cada departamento precisa faturar no mês.
 
 **Exemplo de objetivos que você pode ver (Janeiro 2026):**
 
-| Departamento | Objetivo | Valor Atingido | Performance | Status |
-|--------------|----------|----------------|-------------|--------|
-| Marketing Digital | €19.200 | €20.160 | 105% | 🟢 Superou |
-| Branding & Design | €18.720 | €17.280 | 92% | 🟡 Próximo |
-| RED® MEDIA | €20.520 | €19.800 | 96% | 🟡 Próximo |
-| Web / UX / Dev | €28.160 | €22.000 | 78% | 🔴 Abaixo |
-| MyPRINT® | €2.304 | €2.200 | 95% | 🟡 Próximo |
-| **TOTAL** | **€66.080** | **€59.440** | **90%** | 🟡 Próximo |
+| Departamento      | Objetivo    | Valor Atingido | Performance | Status     |
+| ----------------- | ----------- | -------------- | ----------- | ---------- |
+| Marketing Digital | €19.200     | €20.160        | 105%        | 🟢 Superou |
+| Branding & Design | €18.720     | €17.280        | 92%         | 🟡 Próximo |
+| RED® MEDIA        | €20.520     | €19.800        | 96%         | 🟡 Próximo |
+| Web / UX / Dev    | €28.160     | €22.000        | 78%         | 🔴 Abaixo  |
+| MyPRINT®          | €2.304      | €2.200         | 95%         | 🟡 Próximo |
+| **TOTAL**         | **€66.080** | **€59.440**    | **90%**     | 🟡 Próximo |
 
 **Como calcular o objetivo:**
+
 - Objetivo = Horas Disponíveis (alvo) × Taxa Média por Hora
 - Exemplo Branding & Design: 416h × €45/h = **€18.720**
 
 **Como calcular o valor atingido:**
+
 - Valor Atingido = Horas Reais Faturáveis × Taxa Média por Hora
 - Exemplo Branding & Design: 384h × €45/h = **€17.280**
 
 **Performance:**
+
 - Performance = (Valor Atingido ÷ Objetivo) × 100
 - Exemplo: (€17.280 ÷ €18.720) × 100 = **92%**
 
@@ -284,16 +297,17 @@ Os **Objetivos** definem quanto cada departamento precisa faturar no mês.
 1. Clique em **Novo Objetivo** ou **Editar** em um objetivo existente
 2. Preencha:
    - **Departamento**: Selecione qual departamento
-     - *Exemplo: "Branding & Design"*
+     - _Exemplo: "Branding & Design"_
    - **Mês/Ano**: Período do objetivo
-     - *Exemplo: Janeiro / 2026*
+     - _Exemplo: Janeiro / 2026_
    - **Valor do Objetivo**: Quanto em euros precisa ser faturado
-     - *Exemplo: 18720 (para um departamento com 416 horas × €45/hora)*
+     - _Exemplo: 18720 (para um departamento com 416 horas × €45/hora)_
 3. Clique em **Salvar**
 
 **Exemplo prático - Criar objetivo para "Marketing Digital" (Fevereiro 2026):**
 
 **Passo a passo:**
+
 1. Clique em **Novo Objetivo**
 2. Selecione Departamento: **Marketing Digital**
 3. Selecione Mês: **Fevereiro**
@@ -301,11 +315,13 @@ Os **Objetivos** definem quanto cada departamento precisa faturar no mês.
 5. Digite Valor do Objetivo: `19200` (€19.200,00)
 
 **Como saber qual valor colocar?**
+
 - Verifique as "Horas Disponíveis (alvo)" do departamento em Fevereiro
 - Multiplique pela Taxa Média: 384h × €50/h = €19.200
 - Ou use um valor baseado em metas de negócio
 
 **Após criar:**
+
 - O objetivo aparecerá na lista
 - A performance será calculada automaticamente quando houver dados de receita
 - Se não houver receita ainda, aparecerá como 0%
@@ -328,17 +344,18 @@ Os **Objetivos** definem quanto cada departamento precisa faturar no mês.
 
 **Exemplo de retainers que você pode ver:**
 
-| Cliente | Valor Mensal | Departamento | Status | Período | Total Anual |
-|---------|--------------|--------------|--------|---------|-------------|
-| Cliente ABC - Gestão Redes Sociais | €800 | Marketing Digital | ✅ Ativo | 01/01/2026 - 31/12/2026 | €9.600 |
-| Cliente XYZ - Branding Mensal | €1.500 | Branding & Design | ✅ Ativo | 01/01/2026 - 31/12/2026 | €18.000 |
-| Cliente DEF - Site Manutenção | €600 | Web / UX / Dev | ✅ Ativo | 01/02/2026 - 31/12/2026 | €6.600 |
-| Cliente JKL - Consultoria Marketing | €2.000 | Marketing Digital | ✅ Ativo | 01/01/2026 - 31/12/2026 | €24.000 |
-| Cliente MNO - Design Gráfico | €1.200 | Branding & Design | ✅ Ativo | 01/03/2026 - 31/12/2026 | €12.000 |
-| Cliente GHI - Consultoria (antigo) | €2.000 | Marketing Digital | ⏸️ Inativo | 01/01/2025 - 31/12/2025 | - |
-| **TOTAL ATIVOS** | **€6.100/mês** | | | | **€70.200/ano** |
+| Cliente                             | Valor Mensal   | Departamento      | Status     | Período                 | Total Anual     |
+| ----------------------------------- | -------------- | ----------------- | ---------- | ----------------------- | --------------- |
+| Cliente ABC - Gestão Redes Sociais  | €800           | Marketing Digital | ✅ Ativo   | 01/01/2026 - 31/12/2026 | €9.600          |
+| Cliente XYZ - Branding Mensal       | €1.500         | Branding & Design | ✅ Ativo   | 01/01/2026 - 31/12/2026 | €18.000         |
+| Cliente DEF - Site Manutenção       | €600           | Web / UX / Dev    | ✅ Ativo   | 01/02/2026 - 31/12/2026 | €6.600          |
+| Cliente JKL - Consultoria Marketing | €2.000         | Marketing Digital | ✅ Ativo   | 01/01/2026 - 31/12/2026 | €24.000         |
+| Cliente MNO - Design Gráfico        | €1.200         | Branding & Design | ✅ Ativo   | 01/03/2026 - 31/12/2026 | €12.000         |
+| Cliente GHI - Consultoria (antigo)  | €2.000         | Marketing Digital | ⏸️ Inativo | 01/01/2025 - 31/12/2025 | -               |
+| **TOTAL ATIVOS**                    | **€6.100/mês** |                   |            |                         | **€70.200/ano** |
 
 **Como os retainers aparecem no cálculo:**
+
 - Cada retainer ativo soma ao valor de receita do departamento
 - Exemplo Janeiro 2026:
   - Marketing Digital: €800 + €2.000 = €2.800 de retainers
@@ -346,6 +363,7 @@ Os **Objetivos** definem quanto cada departamento precisa faturar no mês.
   - Web / UX / Dev: €0 (retainer começa em Fevereiro)
 
 **Retainers inativos:**
+
 - Não aparecem nos cálculos do período atual
 - Ficam no histórico para referência
 
@@ -373,18 +391,19 @@ Os **Custos Fixos** são gastos mensais da empresa (aluguel, softwares, etc.).
 
 **Exemplo de custos fixos que você pode ver:**
 
-| Custo | Categoria | Valor Mensal | Status | Período | Total Anual |
-|-------|-----------|--------------|--------|---------|-------------|
-| Aluguel Escritório Lisboa | Aluguel | €3.500 | ✅ Ativo | 01/01/2026 - (permanente) | €42.000 |
-| Eletricidade, Água e Internet | Utilidades | €850 | ✅ Ativo | 01/01/2026 - (permanente) | €10.200 |
-| Softwares de Produtividade | Software | €1.200 | ✅ Ativo | 01/01/2026 - (permanente) | €14.400 |
-| Licenças Adobe Creative Cloud | Software | €600 | ✅ Ativo | 01/01/2026 - (permanente) | €7.200 |
-| Seguros | Outros | €450 | ✅ Ativo | 01/01/2026 - (permanente) | €5.400 |
-| Marketing e Publicidade | Marketing | €800 | ✅ Ativo | 01/01/2026 - (permanente) | €9.600 |
-| Aluguel Escritório Porto | Aluguel | €2.200 | ⏸️ Inativo | 01/01/2025 - 31/12/2025 | - |
-| **TOTAL ATIVO** | | **€7.400/mês** | | | **€88.800/ano** |
+| Custo                         | Categoria  | Valor Mensal   | Status     | Período                   | Total Anual     |
+| ----------------------------- | ---------- | -------------- | ---------- | ------------------------- | --------------- |
+| Aluguel Escritório Lisboa     | Aluguel    | €3.500         | ✅ Ativo   | 01/01/2026 - (permanente) | €42.000         |
+| Eletricidade, Água e Internet | Utilidades | €850           | ✅ Ativo   | 01/01/2026 - (permanente) | €10.200         |
+| Softwares de Produtividade    | Software   | €1.200         | ✅ Ativo   | 01/01/2026 - (permanente) | €14.400         |
+| Licenças Adobe Creative Cloud | Software   | €600           | ✅ Ativo   | 01/01/2026 - (permanente) | €7.200          |
+| Seguros                       | Outros     | €450           | ✅ Ativo   | 01/01/2026 - (permanente) | €5.400          |
+| Marketing e Publicidade       | Marketing  | €800           | ✅ Ativo   | 01/01/2026 - (permanente) | €9.600          |
+| Aluguel Escritório Porto      | Aluguel    | €2.200         | ⏸️ Inativo | 01/01/2025 - 31/12/2025   | -               |
+| **TOTAL ATIVO**               |            | **€7.400/mês** |            |                           | **€88.800/ano** |
 
 **Como os custos fixos afetam os cálculos:**
+
 - São somados aos custos totais da empresa
 - Reduzem a margem final
 - Exemplo Janeiro 2026:
@@ -395,6 +414,7 @@ Os **Custos Fixos** são gastos mensais da empresa (aluguel, softwares, etc.).
   - **Margem: €14.200 (24%)**
 
 **Custos por categoria:**
+
 - **Aluguel**: Espaços físicos (escritórios)
 - **Utilidades**: Luz, água, internet, telefone
 - **Software**: Licenças, assinaturas, ferramentas
@@ -404,6 +424,7 @@ Os **Custos Fixos** são gastos mensais da empresa (aluguel, softwares, etc.).
 ### 7.2 Filtrar Custos
 
 Você pode filtrar por:
+
 - **Categoria**: Ver apenas custos de uma categoria específica
 - **Status**: Ver apenas ativos ou inativos
 - **Período**: Ver custos de um período específico
@@ -431,36 +452,41 @@ A **Visão Mensal Consolidada** mostra um resumo de todo o ano, mês a mês.
 
 **Exemplo de dados que você pode ver (ano 2026):**
 
-| Mês | Receita Total | Custos Totais | Margem | % Margem | Performance | Status |
-|-----|---------------|---------------|--------|----------|-------------|--------|
-| Janeiro | €59.440 | €45.240 | €14.200 | 24% | 90% | 🟡 |
-| Fevereiro | €62.100 | €46.800 | €15.300 | 25% | 94% | 🟡 |
-| Março | €58.900 | €44.500 | €14.400 | 24% | 89% | 🟡 |
-| Abril | €65.200 | €47.100 | €18.100 | 28% | 99% | 🟢 |
-| Maio | €63.800 | €46.200 | €17.600 | 28% | 97% | 🟢 |
-| Junho | €61.500 | €45.600 | €15.900 | 26% | 93% | 🟡 |
-| **TOTAL** | **€370.940** | **€275.440** | **€95.500** | **26%** | **94%** | 🟡 |
+| Mês       | Receita Total | Custos Totais | Margem      | % Margem | Performance | Status |
+| --------- | ------------- | ------------- | ----------- | -------- | ----------- | ------ |
+| Janeiro   | €59.440       | €45.240       | €14.200     | 24%      | 90%         | 🟡     |
+| Fevereiro | €62.100       | €46.800       | €15.300     | 25%      | 94%         | 🟡     |
+| Março     | €58.900       | €44.500       | €14.400     | 24%      | 89%         | 🟡     |
+| Abril     | €65.200       | €47.100       | €18.100     | 28%      | 99%         | 🟢     |
+| Maio      | €63.800       | €46.200       | €17.600     | 28%      | 97%         | 🟢     |
+| Junho     | €61.500       | €45.600       | €15.900     | 26%      | 93%         | 🟡     |
+| **TOTAL** | **€370.940**  | **€275.440**  | **€95.500** | **26%**  | **94%**     | 🟡     |
 
 **Interpretação dos dados:**
 
 **Receita Total:**
+
 - Soma de todas as receitas faturáveis dos departamentos
 - Inclui retainers + horas faturáveis
 
 **Custos Totais:**
+
 - Custos variáveis (pessoas) + Custos fixos
 - Exemplo Janeiro: €37.840 (pessoas) + €7.400 (fixos) = €45.240
 
 **Margem:**
+
 - Receita - Custos = Margem
 - Exemplo Janeiro: €59.440 - €45.240 = €14.200
 - Percentual: (€14.200 ÷ €59.440) × 100 = 24%
 
 **Performance:**
+
 - Percentual do objetivo atingido
 - Exemplo Janeiro: 90% (atingiu 90% do objetivo de €66.080)
 
 **Status:**
+
 - 🟢 Verde: Margem ≥ 30% OU Performance ≥ 100%
 - 🟡 Amarelo: Margem entre 20-30% OU Performance entre 80-99%
 - 🔴 Vermelho: Margem < 20% OU Performance < 80%
@@ -488,31 +514,32 @@ No topo da página, selecione o **ano** que deseja visualizar.
 1. No menu, clique em **Configurações**
 2. Você pode editar:
    - **Margem Alvo**: Percentual de margem desejado (ex: 30%)
-     - *Valor padrão: 0,30 (30%)*
+     - _Valor padrão: 0,30 (30%)_
    - **Horas por Mês**: Quantas horas uma pessoa trabalha por mês (ex: 160)
-     - *Valor padrão: 160 horas (8h/dia × 20 dias úteis)*
+     - _Valor padrão: 160 horas (8h/dia × 20 dias úteis)_
    - **Utilização Faturável**: Percentual de tempo faturável (ex: 65%)
-     - *Valor padrão: 0,65 (65% do tempo é faturável)*
+     - _Valor padrão: 0,65 (65% do tempo é faturável)_
    - **Custo por Pessoa/Mês**: Custo médio de cada pessoa (ex: 2200€)
-     - *Valor padrão: 2200 (salário + encargos)*
+     - _Valor padrão: 2200 (salário + encargos)_
    - **Pessoas Overhead**: Quantas pessoas não são faturáveis (ex: 6)
-     - *Valor padrão: 6 (administração, direção, etc.)*
+     - _Valor padrão: 6 (administração, direção, etc.)_
 
 3. Clique em **Salvar Configurações**
 
 **Exemplo de configurações típicas:**
 
-| Configuração | Valor | Explicação |
-|-------------|-------|------------|
-| Margem Alvo | `0.30` (30%) | A empresa quer ter 30% de margem em média |
-| Horas por Mês | `160` | Cada pessoa trabalha 160h/mês (8h/dia × 20 dias) |
-| Utilização Faturável | `0.65` (65%) | 65% do tempo das pessoas é faturável (35% é overhead interno) |
-| Custo por Pessoa/Mês | `2200` (€2.200) | Custo total de cada pessoa (salário + encargos) |
-| Pessoas Overhead | `6` | 6 pessoas não são faturáveis (direção, admin, etc.) |
+| Configuração         | Valor           | Explicação                                                    |
+| -------------------- | --------------- | ------------------------------------------------------------- |
+| Margem Alvo          | `0.30` (30%)    | A empresa quer ter 30% de margem em média                     |
+| Horas por Mês        | `160`           | Cada pessoa trabalha 160h/mês (8h/dia × 20 dias)              |
+| Utilização Faturável | `0.65` (65%)    | 65% do tempo das pessoas é faturável (35% é overhead interno) |
+| Custo por Pessoa/Mês | `2200` (€2.200) | Custo total de cada pessoa (salário + encargos)               |
+| Pessoas Overhead     | `6`             | 6 pessoas não são faturáveis (direção, admin, etc.)           |
 
 **Como essas configurações afetam os cálculos:**
 
 **Exemplo prático - Departamento com 4 pessoas:**
+
 - Horas totais: 4 pessoas × 160h = 640h/mês
 - Horas faturáveis: 640h × 0,65 = 416h/mês
 - Custo total: 4 pessoas × €2.200 = €8.800/mês
@@ -520,6 +547,7 @@ No topo da página, selecione o **ano** que deseja visualizar.
 - Se taxa média é €45/h: Margem = (€45 - €21,15) ÷ €45 = 53% de margem
 
 **Se mudar Utilização Faturável para 0,70 (70%):**
+
 - Horas faturáveis: 640h × 0,70 = 448h/mês
 - Custo por hora: €8.800 ÷ 448h = €19,64/h
 - Margem: (€45 - €19,64) ÷ €45 = 56% de margem (melhor!)
@@ -537,14 +565,16 @@ Alguns departamentos são sincronizados automaticamente do sistema Odoo. Nestes 
 ### 10.2 O que significa "Performance" no Dashboard?
 
 A Performance mostra quanto percentual do objetivo mensal foi atingido. Por exemplo:
+
 - **100%**: Objetivo foi atingido completamente
-  - *Exemplo: Objetivo de €20.000, atingiu €20.000*
+  - _Exemplo: Objetivo de €20.000, atingiu €20.000_
 - **80%**: Faltam 20% para atingir o objetivo
-  - *Exemplo: Objetivo de €20.000, atingiu €16.000 (faltam €4.000)*
+  - _Exemplo: Objetivo de €20.000, atingiu €16.000 (faltam €4.000)_
 - **120%**: Superou o objetivo em 20%
-  - *Exemplo: Objetivo de €20.000, atingiu €24.000 (superou em €4.000)*
+  - _Exemplo: Objetivo de €20.000, atingiu €24.000 (superou em €4.000)_
 
 **Cores no sistema:**
+
 - 🟢 Verde: Performance ≥ 100% (objetivo atingido ou superado)
 - 🟡 Amarelo: Performance entre 80% e 99% (próximo do objetivo)
 - 🔴 Vermelho: Performance < 80% (abaixo do esperado)
@@ -556,6 +586,7 @@ Use os filtros de **Mês** e **Ano** no topo das páginas. Você pode selecionar
 ### 10.4 O que são "Horas Disponíveis (alvo)"?
 
 São as horas que o departamento tem disponível para faturar, considerando:
+
 - Horas totais do mês
 - Horas já utilizadas
 - Horas planejadas
@@ -563,6 +594,7 @@ São as horas que o departamento tem disponível para faturar, considerando:
 Este valor é calculado automaticamente, mas pode ser editado manualmente se necessário.
 
 **Exemplo de cálculo:**
+
 - Departamento com 4 pessoas
 - Horas por mês: 160h por pessoa
 - Total: 4 × 160 = 640 horas totais
@@ -574,6 +606,7 @@ Se o departamento trabalhou 485 horas reais, mas o alvo é 416h, significa que t
 ### 10.5 Por que alguns departamentos aparecem como "N/A" no Dashboard?
 
 Isso acontece quando:
+
 - Não há dados cadastrados para aquele mês
 - O departamento não tem horas planejadas
 - Os cálculos ainda não foram executados
@@ -601,4 +634,3 @@ Se você tiver dúvidas ou encontrar problemas:
 ---
 
 **Última atualização:** Janeiro 2026
-

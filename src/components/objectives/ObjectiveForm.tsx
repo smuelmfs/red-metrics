@@ -1,86 +1,102 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Department, Objective } from '@prisma/client'
-import { useToast } from '@/components/ui/toast'
-import Spinner from '@/components/ui/Spinner'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Department, Objective } from "@prisma/client";
+import { useToast } from "@/components/ui/toast";
+import Spinner from "@/components/ui/Spinner";
 
 interface ObjectiveFormProps {
-  department: Department
-  month: number
-  year: number
-  initialData?: Objective
+  department: Department;
+  month: number;
+  year: number;
+  initialData?: Objective;
 }
 
-export default function ObjectiveForm({ department, month, year, initialData }: ObjectiveFormProps) {
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const { addToast } = useToast()
+export default function ObjectiveForm({
+  department,
+  month,
+  year,
+  initialData,
+}: ObjectiveFormProps) {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { addToast } = useToast();
   const [targetValue, setTargetValue] = useState<number | null>(
-    initialData ? Number(initialData.targetValue) : null
-  )
+    initialData ? Number(initialData.targetValue) : null,
+  );
 
   // Atualizar targetValue quando initialData, month ou year mudarem
   useEffect(() => {
     if (initialData) {
       // Há dados salvos para este mês/ano: usar os dados salvos
-      setTargetValue(Number(initialData.targetValue))
+      setTargetValue(Number(initialData.targetValue));
     } else {
       // Não há dados salvos para este mês/ano: resetar para vazio
-      setTargetValue(null)
+      setTargetValue(null);
     }
-  }, [initialData, month, year])
+  }, [initialData, month, year]);
 
   // Verificar se houve mudanças nos dados
   const hasChanges = () => {
-    if (!initialData) return targetValue !== null && targetValue !== 0
-    return targetValue !== Number(initialData.targetValue)
-  }
+    if (!initialData) return targetValue !== null && targetValue !== 0;
+    return targetValue !== Number(initialData.targetValue);
+  };
 
-  const hasExistingData = !!initialData
-  const hasUnsavedChanges = hasChanges()
+  const hasExistingData = !!initialData;
+  const hasUnsavedChanges = hasChanges();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/objectives', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/objectives", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           departmentId: department.id,
           month,
           year,
-          targetValue
-        })
-      })
+          targetValue,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error('Erro ao salvar objetivo')
+        throw new Error("Erro ao salvar objetivo");
       }
 
-      addToast('Objetivo salvo com sucesso!', 'success')
+      addToast("Objetivo salvo com sucesso!", "success");
       // Recarregar a página para mostrar os dados atualizados
-      router.refresh()
+      router.refresh();
     } catch (error) {
-      addToast('Erro ao salvar. Tente novamente.', 'error')
+      addToast("Erro ao salvar. Tente novamente.", "error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="border border-gray-200 rounded-lg p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="border border-gray-200 rounded-lg p-4"
+    >
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{department.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {department.name}
+          </h3>
           {department.minimumRevenueAnnual && (
             <p className="text-xs text-gray-500 mt-1">
-              Objetivo anual: €{Number(department.minimumRevenueAnnual).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              {' '} | {' '}
-              Média mensal: €{(Number(department.minimumRevenueAnnual) / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              Objetivo anual: €
+              {Number(department.minimumRevenueAnnual).toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+              })}{" "}
+              | Média mensal: €
+              {(Number(department.minimumRevenueAnnual) / 12).toLocaleString(
+                "pt-BR",
+                { minimumFractionDigits: 2 },
+              )}
             </p>
           )}
         </div>
@@ -93,7 +109,9 @@ export default function ObjectiveForm({ department, month, year, initialData }: 
               Objetivo Mínimo Mensal (€)
             </label>
             <span className="text-sm font-semibold text-gray-600">
-              {targetValue !== null ? `€${targetValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
+              {targetValue !== null
+                ? `€${targetValue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                : "-"}
             </span>
           </div>
           <input
@@ -101,10 +119,10 @@ export default function ObjectiveForm({ department, month, year, initialData }: 
             min="0"
             step="0.01"
             required
-            value={targetValue ?? ''}
+            value={targetValue ?? ""}
             onChange={(e) => {
-              const value = e.target.value
-              setTargetValue(value ? parseFloat(value) : null)
+              const value = e.target.value;
+              setTargetValue(value ? parseFloat(value) : null);
             }}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-base"
           />
@@ -121,13 +139,14 @@ export default function ObjectiveForm({ department, month, year, initialData }: 
                 <Spinner size="sm" className="!flex" />
                 <span>Salvando...</span>
               </>
+            ) : hasExistingData && hasUnsavedChanges ? (
+              "Salvar Alterações"
             ) : (
-              hasExistingData && hasUnsavedChanges ? 'Salvar Alterações' : 'Salvar Objetivo'
+              "Salvar Objetivo"
             )}
           </button>
         </div>
       </div>
     </form>
-  )
+  );
 }
-

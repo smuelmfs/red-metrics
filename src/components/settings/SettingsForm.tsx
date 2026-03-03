@@ -1,86 +1,92 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useToast } from '@/components/ui/toast'
-import { GlobalSetting } from '@prisma/client'
-import Spinner from '@/components/ui/Spinner'
+import { useState } from "react";
+import { useToast } from "@/components/ui/toast";
+import { GlobalSetting } from "@prisma/client";
+import Spinner from "@/components/ui/Spinner";
 
 interface SettingsFormProps {
-  initialSettings: GlobalSetting[]
+  initialSettings: GlobalSetting[];
 }
 
 export default function SettingsForm({ initialSettings }: SettingsFormProps) {
-  const { addToast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [settings, setSettings] = useState(initialSettings)
+  const { addToast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState(initialSettings);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/global-settings', {
-        method: 'PATCH',
+      const response = await fetch("/api/global-settings", {
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          settings: settings.map(s => ({
+          settings: settings.map((s) => ({
             key: s.key,
             value: s.value,
-            description: s.description
-          }))
-        })
-      })
+            description: s.description,
+          })),
+        }),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erro ao salvar configurações')
+        throw new Error(data.error || "Erro ao salvar configurações");
       }
 
-      addToast('Configurações atualizadas com sucesso', 'success')
+      addToast("Configurações atualizadas com sucesso", "success");
     } catch (error: any) {
-      addToast(error.message || 'Erro ao salvar configurações', 'error')
+      addToast(error.message || "Erro ao salvar configurações", "error");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateSetting = (key: string, value: string) => {
-    setSettings(prev => 
-      prev.map(s => s.key === key ? { ...s, value } : s)
-    )
-  }
+    setSettings((prev) =>
+      prev.map((s) => (s.key === key ? { ...s, value } : s)),
+    );
+  };
 
   // Mapear nomes amigáveis para as chaves
   const settingLabels: Record<string, string> = {
-    targetMargin: 'Margem Alvo',
-    hoursPerMonth: 'Horas de Trabalho por Mês',
-    targetUtilization: 'Utilização Faturável Média',
-    costPerPersonPerMonth: 'Custo Médio por Pessoa/Mês (€)',
-    overheadPeople: 'Nº Pessoas NÃO Faturáveis (Overhead)'
-  }
+    targetMargin: "Margem Alvo",
+    hoursPerMonth: "Horas de Trabalho por Mês",
+    targetUtilization: "Utilização Faturável Média",
+    costPerPersonPerMonth: "Custo Médio por Pessoa/Mês (€)",
+    overheadPeople: "Nº Pessoas NÃO Faturáveis (Overhead)",
+  };
 
   // Mapear tipos de input
   const getInputType = (key: string): string => {
-    if (key === 'overheadPeople') return 'number'
-    if (key === 'hoursPerMonth') return 'number'
-    return 'text'
-  }
+    if (key === "overheadPeople") return "number";
+    if (key === "hoursPerMonth") return "number";
+    return "text";
+  };
 
   // Mapear step para inputs numéricos
   const getStep = (key: string): string => {
-    if (key === 'targetMargin' || key === 'targetUtilization') return '0.01'
-    if (key === 'costPerPersonPerMonth') return '0.01'
-    return '1'
-  }
+    if (key === "targetMargin" || key === "targetUtilization") return "0.01";
+    if (key === "costPerPersonPerMonth") return "0.01";
+    return "1";
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4 lg:p-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-lg shadow-md p-4 lg:p-6"
+    >
       <div className="space-y-6">
         {settings.map((setting) => (
-          <div key={setting.id} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
+          <div
+            key={setting.id}
+            className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0"
+          >
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex-1">
                 <label className="block text-sm font-semibold text-gray-900 mb-1">
@@ -117,11 +123,10 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
               <span>Salvando...</span>
             </>
           ) : (
-            'Salvar Configurações'
+            "Salvar Configurações"
           )}
         </button>
       </div>
     </form>
-  )
+  );
 }
-

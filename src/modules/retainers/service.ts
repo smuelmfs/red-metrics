@@ -7,9 +7,9 @@
  * - Receita total de avenças por departamento/mês
  */
 
-import { Decimal } from '@prisma/client/runtime/library'
-import { prisma } from '@/lib/prisma'
-import { DepartmentRetainerSummary, RetainerPricing } from './domain'
+import { Decimal } from "@prisma/client/runtime/library";
+import { prisma } from "@/lib/prisma";
+import { DepartmentRetainerSummary, RetainerPricing } from "./domain";
 
 /**
  * Calcula a receita mensal de uma avença.
@@ -19,16 +19,16 @@ import { DepartmentRetainerSummary, RetainerPricing } from './domain'
  */
 export function calculateRetainerMonthlyRevenue(
   monthlyPrice: number,
-  quantity: number = 1
+  quantity: number = 1,
 ): RetainerPricing {
-  const safeQuantity = quantity || 1
-  const monthlyRevenue = monthlyPrice * safeQuantity
+  const safeQuantity = quantity || 1;
+  const monthlyRevenue = monthlyPrice * safeQuantity;
 
   return {
     monthlyPrice,
     quantity: safeQuantity,
     monthlyRevenue,
-  }
+  };
 }
 
 /**
@@ -43,22 +43,19 @@ export function calculateRetainerMonthlyRevenue(
 export async function getActiveRetainersForMonth(
   departmentId: string,
   month: number,
-  year: number
+  year: number,
 ) {
-  const startOfMonth = new Date(year, month - 1, 1)
-  const endOfMonth = new Date(year, month, 0, 23, 59, 59)
+  const startOfMonth = new Date(year, month - 1, 1);
+  const endOfMonth = new Date(year, month, 0, 23, 59, 59);
 
   return prisma.retainer.findMany({
     where: {
       departmentId,
       isActive: true,
       startDate: { lte: endOfMonth },
-      OR: [
-        { endDate: null },
-        { endDate: { gte: startOfMonth } },
-      ],
+      OR: [{ endDate: null }, { endDate: { gte: startOfMonth } }],
     },
-  })
+  });
 }
 
 /**
@@ -71,18 +68,18 @@ export async function getActiveRetainersForMonth(
 export async function getDepartmentRetainerRevenueForMonth(
   departmentId: string,
   month: number,
-  year: number
+  year: number,
 ): Promise<DepartmentRetainerSummary> {
   const activeRetainers = await getActiveRetainersForMonth(
     departmentId,
     month,
-    year
-  )
+    year,
+  );
 
   const retainerMonthlyRevenue = activeRetainers.reduce(
     (sum, r) => sum + Number(r.monthlyRevenue),
-    0
-  )
+    0,
+  );
 
   return {
     departmentId,
@@ -90,7 +87,5 @@ export async function getDepartmentRetainerRevenueForMonth(
     year,
     retainerMonthlyRevenue,
     activeRetainersCount: activeRetainers.length,
-  }
+  };
 }
-
-

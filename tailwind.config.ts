@@ -1,12 +1,12 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
 const config = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
@@ -19,21 +19,26 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-montserrat)', 'Montserrat', 'system-ui', 'sans-serif'],
+        sans: [
+          "var(--font-montserrat)",
+          "Montserrat",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       colors: {
         // RED Agency Brand Colors
         red: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444', // RED principal
-          600: '#dc2626', // RED vibrante (cor principal)
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
+          50: "#fef2f2",
+          100: "#fee2e2",
+          200: "#fecaca",
+          300: "#fca5a5",
+          400: "#f87171",
+          500: "#ef4444", // RED principal
+          600: "#dc2626", // RED vibrante (cor principal)
+          700: "#b91c1c",
+          800: "#991b1b",
+          900: "#7f1d1d",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -91,7 +96,6 @@ const config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config
+} satisfies Config;
 
-export default config
-
+export default config;

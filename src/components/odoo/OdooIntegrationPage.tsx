@@ -1,129 +1,138 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useToast } from '@/components/ui/toast'
-import Spinner from '@/components/ui/Spinner'
-import { RefreshCw } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/toast";
+import Spinner from "@/components/ui/Spinner";
+import { RefreshCw } from "lucide-react";
 
 interface OdooConfig {
-  id?: string
-  isEnabled: boolean
-  baseUrl: string
-  database: string
-  username: string
-  apiType: string
-  lastSyncAt?: string
-  lastSyncStatus?: string
-  lastSyncError?: string
+  id?: string;
+  isEnabled: boolean;
+  baseUrl: string;
+  database: string;
+  username: string;
+  apiType: string;
+  lastSyncAt?: string;
+  lastSyncStatus?: string;
+  lastSyncError?: string;
   departmentMappings?: Array<{
-    id: string
-    departmentId: string
-    departmentName: string
-    odooDepartmentId: number
-    odooDepartmentName?: string
-  }>
+    id: string;
+    departmentId: string;
+    departmentName: string;
+    odooDepartmentId: number;
+    odooDepartmentName?: string;
+  }>;
 }
 
-
 export default function OdooIntegrationPage() {
-  const { addToast } = useToast()
-  const [loading, setLoading] = useState(true)
-  const [config, setConfig] = useState<OdooConfig | null>(null)
-  const [activeTab, setActiveTab] = useState<'sync' | 'synced'>('sync')
-  const [syncing, setSyncing] = useState(false)
-  const [syncedData, setSyncedData] = useState<any>(null)
-  const [loadingSyncedData, setLoadingSyncedData] = useState(false)
+  const { addToast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<OdooConfig | null>(null);
+  const [activeTab, setActiveTab] = useState<"sync" | "synced">("sync");
+  const [syncing, setSyncing] = useState(false);
+  const [syncedData, setSyncedData] = useState<any>(null);
+  const [loadingSyncedData, setLoadingSyncedData] = useState(false);
 
   useEffect(() => {
-    loadConfig()
-  }, [])
+    loadConfig();
+  }, []);
 
   const loadConfig = async () => {
     try {
-      const response = await fetch('/api/odoo/config')
+      const response = await fetch("/api/odoo/config");
       if (response.ok) {
-        const data = await response.json()
-        setConfig(data)
+        const data = await response.json();
+        setConfig(data);
       }
     } catch (error) {
-      console.error('Error loading config:', error)
+      console.error("Error loading config:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-
-
+  };
 
   const loadSyncedData = async () => {
-    setLoadingSyncedData(true)
+    setLoadingSyncedData(true);
     try {
-      const response = await fetch('/api/odoo/synced-data')
+      const response = await fetch("/api/odoo/synced-data");
       if (response.ok) {
-        const data = await response.json()
-        console.log('[Odoo] Dados sincronizados recebidos:', data)
-        setSyncedData(data)
+        const data = await response.json();
+        console.log("[Odoo] Dados sincronizados recebidos:", data);
+        setSyncedData(data);
       } else {
-        const errorData = await response.json().catch(() => ({}))
-        console.error('[Odoo] Erro ao carregar dados:', errorData)
-        throw new Error(errorData.error || 'Erro ao carregar dados sincronizados')
+        const errorData = await response.json().catch(() => ({}));
+        console.error("[Odoo] Erro ao carregar dados:", errorData);
+        throw new Error(
+          errorData.error || "Erro ao carregar dados sincronizados",
+        );
       }
     } catch (error: any) {
-      console.error('[Odoo] Erro ao carregar dados sincronizados:', error)
-      addToast(error.message || 'Erro ao carregar dados sincronizados', 'error')
+      console.error("[Odoo] Erro ao carregar dados sincronizados:", error);
+      addToast(
+        error.message || "Erro ao carregar dados sincronizados",
+        "error",
+      );
     } finally {
-      setLoadingSyncedData(false)
+      setLoadingSyncedData(false);
     }
-  }
+  };
 
-  const handleSync = async (month: number, year: number, billingTypes?: string[]) => {
-    setSyncing(true)
+  const handleSync = async (
+    month: number,
+    year: number,
+    billingTypes?: string[],
+  ) => {
+    setSyncing(true);
     try {
-      const response = await fetch('/api/odoo/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ month, year, billingTypes })
-      })
+      const response = await fetch("/api/odoo/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ month, year, billingTypes }),
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.success) {
         addToast(
           `Sincronização concluída! ${result.syncedCount} departamento(s) atualizado(s).`,
-          'success'
-        )
-        await loadConfig()
+          "success",
+        );
+        await loadConfig();
         // Recarregar dados sincronizados se estiver na aba
-        if (activeTab === 'synced') {
-          await loadSyncedData()
+        if (activeTab === "synced") {
+          await loadSyncedData();
         }
       } else {
         addToast(
-          `Sincronização com erros: ${result.errors.join(', ')}`,
-          'error'
-        )
+          `Sincronização com erros: ${result.errors.join(", ")}`,
+          "error",
+        );
       }
     } catch (error: any) {
-      addToast('Erro ao sincronizar', 'error')
+      addToast("Erro ao sincronizar", "error");
     } finally {
-      setSyncing(false)
+      setSyncing(false);
     }
-  }
+  };
 
   if (loading && !config) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
       </div>
-    )
+    );
   }
 
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="mb-6 lg:mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Integração Odoo</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+          Integração Odoo
+        </h1>
         <p className="text-sm lg:text-base text-gray-600 mt-1 lg:mt-2">
-          Sincronize horas reais do Odoo automaticamente. Configure as credenciais no arquivo <code className="bg-gray-100 px-1 rounded">.env</code>
+          Sincronize horas reais do Odoo automaticamente. Configure as
+          credenciais no arquivo{" "}
+          <code className="bg-gray-100 px-1 rounded">.env</code>
         </p>
       </div>
 
@@ -131,11 +140,11 @@ export default function OdooIntegrationPage() {
       <div className="border-b border-gray-200 mb-6">
         <nav className="flex space-x-8">
           <button
-            onClick={() => setActiveTab('sync')}
+            onClick={() => setActiveTab("sync")}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'sync'
-                ? 'border-red-500 text-red-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              activeTab === "sync"
+                ? "border-red-500 text-red-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
             <RefreshCw className="inline w-4 h-4 mr-2" />
@@ -143,13 +152,13 @@ export default function OdooIntegrationPage() {
           </button>
           <button
             onClick={() => {
-              setActiveTab('synced')
-              loadSyncedData()
+              setActiveTab("synced");
+              loadSyncedData();
             }}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'synced'
-                ? 'border-red-500 text-red-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              activeTab === "synced"
+                ? "border-red-500 text-red-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
             <RefreshCw className="inline w-4 h-4 mr-2" />
@@ -162,7 +171,10 @@ export default function OdooIntegrationPage() {
       {!config?.isEnabled && (
         <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-sm text-yellow-800">
-            <strong>⚠️ Configuração do Odoo não encontrada:</strong> Configure as credenciais no arquivo <code className="bg-yellow-100 px-1 rounded">.env</code> usando as variáveis:
+            <strong>⚠️ Configuração do Odoo não encontrada:</strong> Configure
+            as credenciais no arquivo{" "}
+            <code className="bg-yellow-100 px-1 rounded">.env</code> usando as
+            variáveis:
             <br />
             <code className="block mt-2 text-xs bg-gray-100 p-2 rounded">
               ODOO_BASE_URL, ODOO_DATABASE, ODOO_USERNAME, ODOO_API_KEY
@@ -174,10 +186,13 @@ export default function OdooIntegrationPage() {
       {config?.isEnabled && (
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-sm text-green-800">
-            <strong>✓ Integração Odoo configurada:</strong> As credenciais estão configuradas via variáveis de ambiente e serão usadas automaticamente.
+            <strong>✓ Integração Odoo configurada:</strong> As credenciais estão
+            configuradas via variáveis de ambiente e serão usadas
+            automaticamente.
             {config.lastSyncAt && (
               <span className="block mt-1">
-                Última sincronização: {new Date(config.lastSyncAt).toLocaleString('pt-BR')}
+                Última sincronização:{" "}
+                {new Date(config.lastSyncAt).toLocaleString("pt-BR")}
               </span>
             )}
           </p>
@@ -185,16 +200,12 @@ export default function OdooIntegrationPage() {
       )}
 
       {/* Sync Tab */}
-      {activeTab === 'sync' && (
-        <OdooSyncTab
-          config={config}
-          syncing={syncing}
-          onSync={handleSync}
-        />
+      {activeTab === "sync" && (
+        <OdooSyncTab config={config} syncing={syncing} onSync={handleSync} />
       )}
 
       {/* Synced Data Tab */}
-      {activeTab === 'synced' && (
+      {activeTab === "synced" && (
         <OdooSyncedDataTab
           syncedData={syncedData}
           loading={loadingSyncedData}
@@ -203,23 +214,23 @@ export default function OdooIntegrationPage() {
         />
       )}
     </div>
-  )
+  );
 }
 
 // Componente para a aba de sincronização
 function OdooSyncTab({
   config,
   syncing,
-  onSync
+  onSync,
 }: {
-  config: OdooConfig | null
-  syncing: boolean
-  onSync: (month: number, year: number, billingTypes?: string[]) => void
+  config: OdooConfig | null;
+  syncing: boolean;
+  onSync: (month: number, year: number, billingTypes?: string[]) => void;
 }) {
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const [year, setYear] = useState(Math.max(2026, new Date().getFullYear())) // Garantir que começa em 2026
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(Math.max(2026, new Date().getFullYear())); // Garantir que começa em 2026
   // Sempre usar todos os tipos de faturamento
-  const billingTypes = ['fixed_price', 'timesheet', 'milestone', 'manual']
+  const billingTypes = ["fixed_price", "timesheet", "milestone", "manual"];
 
   if (!config?.isEnabled) {
     return (
@@ -228,7 +239,7 @@ function OdooSyncTab({
           Configure e habilite a integração Odoo primeiro na aba "Configuração"
         </p>
       </div>
-    )
+    );
   }
 
   // Não precisamos mais verificar mapeamentos - os departamentos serão buscados automaticamente do Odoo
@@ -249,7 +260,9 @@ function OdooSyncTab({
           >
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
               <option key={m} value={m}>
-                {new Date(2000, m - 1).toLocaleString('pt-BR', { month: 'long' })}
+                {new Date(2000, m - 1).toLocaleString("pt-BR", {
+                  month: "long",
+                })}
               </option>
             ))}
           </select>
@@ -283,7 +296,8 @@ function OdooSyncTab({
             <li>Billed Manually</li>
           </ul>
           <p className="text-xs text-blue-700 mt-2">
-            A sincronização buscará a <strong>soma total</strong> de horas de todos os tipos de faturamento acima.
+            A sincronização buscará a <strong>soma total</strong> de horas de
+            todos os tipos de faturamento acima.
           </p>
         </div>
 
@@ -292,10 +306,22 @@ function OdooSyncTab({
             <strong>Como funciona:</strong>
           </p>
           <ul className="text-sm text-blue-800 mt-1 list-disc list-inside space-y-1">
-            <li>A sincronização busca automaticamente todos os departamentos do Odoo</li>
-            <li>Departamentos que não existem no sistema serão criados automaticamente</li>
-            <li>As horas faturáveis serão atualizadas nos registros de "Horas Reais"</li>
-            <li>A busca inclui <strong>todos</strong> os tipos de faturamento e retorna a <strong>soma total</strong> de horas</li>
+            <li>
+              A sincronização busca automaticamente todos os departamentos do
+              Odoo
+            </li>
+            <li>
+              Departamentos que não existem no sistema serão criados
+              automaticamente
+            </li>
+            <li>
+              As horas faturáveis serão atualizadas nos registros de "Horas
+              Reais"
+            </li>
+            <li>
+              A busca inclui <strong>todos</strong> os tipos de faturamento e
+              retorna a <strong>soma total</strong> de horas
+            </li>
           </ul>
         </div>
 
@@ -318,7 +344,7 @@ function OdooSyncTab({
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 // Componente para a aba de dados sincronizados
@@ -326,31 +352,41 @@ function OdooSyncedDataTab({
   syncedData,
   loading,
   onRefresh,
-  onMount
+  onMount,
 }: {
-  syncedData: any
-  loading: boolean
-  onRefresh: () => void
-  onMount: () => void
+  syncedData: any;
+  loading: boolean;
+  onRefresh: () => void;
+  onMount: () => void;
 }) {
   const months = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ]
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
 
   // Carregar dados quando o componente é montado
   useEffect(() => {
     if (!syncedData && !loading) {
-      onMount()
+      onMount();
     }
-  }, [syncedData, loading, onMount])
+  }, [syncedData, loading, onMount]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
       </div>
-    )
+    );
   }
 
   if (!syncedData) {
@@ -368,10 +404,10 @@ function OdooSyncedDataTab({
         </div>
         <p className="text-gray-600">Nenhum dado sincronizado encontrado.</p>
       </div>
-    )
+    );
   }
 
-  const { data, stats } = syncedData
+  const { data, stats } = syncedData;
 
   // Agrupar por departamento
   const byDepartment = data.reduce((acc: any, item: any) => {
@@ -380,12 +416,12 @@ function OdooSyncedDataTab({
         departmentId: item.departmentId,
         departmentName: item.departmentName,
         departmentCode: item.departmentCode,
-        records: []
-      }
+        records: [],
+      };
     }
-    acc[item.departmentId].records.push(item)
-    return acc
-  }, {})
+    acc[item.departmentId].records.push(item);
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-6">
@@ -395,11 +431,15 @@ function OdooSyncedDataTab({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-gray-600">Departamentos</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.totalDepartments}</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {stats.totalDepartments}
+            </p>
           </div>
           <div className="p-4 bg-green-50 rounded-lg">
             <p className="text-sm text-gray-600">Registros</p>
-            <p className="text-2xl font-bold text-green-600">{stats.totalRecords}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {stats.totalRecords}
+            </p>
           </div>
           <div className="p-4 bg-purple-50 rounded-lg">
             <p className="text-sm text-gray-600">Total de Horas</p>
@@ -411,8 +451,8 @@ function OdooSyncedDataTab({
             <p className="text-sm text-gray-600">Última Sincronização</p>
             <p className="text-sm font-semibold text-orange-600">
               {stats.lastSyncDate
-                ? new Date(stats.lastSyncDate).toLocaleString('pt-BR')
-                : 'N/A'}
+                ? new Date(stats.lastSyncDate).toLocaleString("pt-BR")
+                : "N/A"}
             </p>
           </div>
         </div>
@@ -421,7 +461,9 @@ function OdooSyncedDataTab({
       {/* Tabela de dados */}
       <div className="bg-white rounded-lg shadow-md p-4 lg:p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Departamentos e Horas Sincronizados</h2>
+          <h2 className="text-lg font-semibold">
+            Departamentos e Horas Sincronizados
+          </h2>
           <button
             onClick={onRefresh}
             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center gap-2"
@@ -455,7 +497,9 @@ function OdooSyncedDataTab({
               <tbody className="bg-white divide-y divide-gray-200">
                 {Object.values(byDepartment).map((dept: any) =>
                   dept.records.map((record: any, idx: number) => (
-                    <tr key={`${record.departmentId}-${record.month}-${record.year}`}>
+                    <tr
+                      key={`${record.departmentId}-${record.month}-${record.year}`}
+                    >
                       {idx === 0 && (
                         <td
                           rowSpan={dept.records.length}
@@ -463,7 +507,9 @@ function OdooSyncedDataTab({
                         >
                           {dept.departmentName}
                           {dept.departmentCode && (
-                            <span className="text-gray-500 ml-2">({dept.departmentCode})</span>
+                            <span className="text-gray-500 ml-2">
+                              ({dept.departmentCode})
+                            </span>
                           )}
                         </td>
                       )}
@@ -475,11 +521,13 @@ function OdooSyncedDataTab({
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                         {record.lastSyncedAt
-                          ? new Date(record.lastSyncedAt).toLocaleString('pt-BR')
-                          : 'N/A'}
+                          ? new Date(record.lastSyncedAt).toLocaleString(
+                              "pt-BR",
+                            )
+                          : "N/A"}
                       </td>
                     </tr>
-                  ))
+                  )),
                 )}
               </tbody>
             </table>
@@ -487,6 +535,5 @@ function OdooSyncedDataTab({
         )}
       </div>
     </div>
-  )
+  );
 }
-

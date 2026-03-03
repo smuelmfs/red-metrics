@@ -1,37 +1,60 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import Link from 'next/link'
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 /**
  * Visão Anual Consolidada de Departamentos
- * 
+ *
  * Equivalente à aba "Depts" da planilha original.
  * Mostra todas as métricas anuais calculadas de todos os departamentos em uma tabela consolidada.
  */
 export default async function DepartmentsAnnualPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/')
+    redirect("/");
   }
 
   // Buscar todos os departamentos ativos com métricas anuais
   const departments = await prisma.department.findMany({
     where: { isActive: true },
-    orderBy: { name: 'asc' }
-  })
+    orderBy: { name: "asc" },
+  });
 
   // Calcular totais
   const totals = {
-    billableHeadcount: departments.reduce((sum, d) => sum + d.billableHeadcount, 0),
-    directCostAnnual: departments.reduce((sum, d) => sum + (d.directCostAnnual ? Number(d.directCostAnnual) : 0), 0),
-    billableHoursAnnual: departments.reduce((sum, d) => sum + (d.billableHoursAnnual ? Number(d.billableHoursAnnual) : 0), 0),
-    revenueCapacityAnnual: departments.reduce((sum, d) => sum + (d.revenueCapacityAnnual ? Number(d.revenueCapacityAnnual) : 0), 0),
-    overheadAllocatedAnnual: departments.reduce((sum, d) => sum + (d.overheadAllocatedAnnual ? Number(d.overheadAllocatedAnnual) : 0), 0),
-    minimumRevenueAnnual: departments.reduce((sum, d) => sum + (d.minimumRevenueAnnual ? Number(d.minimumRevenueAnnual) : 0), 0),
-  }
+    billableHeadcount: departments.reduce(
+      (sum, d) => sum + d.billableHeadcount,
+      0,
+    ),
+    directCostAnnual: departments.reduce(
+      (sum, d) => sum + (d.directCostAnnual ? Number(d.directCostAnnual) : 0),
+      0,
+    ),
+    billableHoursAnnual: departments.reduce(
+      (sum, d) =>
+        sum + (d.billableHoursAnnual ? Number(d.billableHoursAnnual) : 0),
+      0,
+    ),
+    revenueCapacityAnnual: departments.reduce(
+      (sum, d) =>
+        sum + (d.revenueCapacityAnnual ? Number(d.revenueCapacityAnnual) : 0),
+      0,
+    ),
+    overheadAllocatedAnnual: departments.reduce(
+      (sum, d) =>
+        sum +
+        (d.overheadAllocatedAnnual ? Number(d.overheadAllocatedAnnual) : 0),
+      0,
+    ),
+    minimumRevenueAnnual: departments.reduce(
+      (sum, d) =>
+        sum + (d.minimumRevenueAnnual ? Number(d.minimumRevenueAnnual) : 0),
+      0,
+    ),
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto">
@@ -44,9 +67,12 @@ export default async function DepartmentsAnnualPage() {
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Visão Anual Consolidada</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              Visão Anual Consolidada
+            </h1>
             <p className="text-sm lg:text-base text-gray-600 mt-1 lg:mt-2">
-              Métricas anuais calculadas de todos os departamentos (equivalente à aba "Depts" da planilha)
+              Métricas anuais calculadas de todos os departamentos (equivalente
+              à aba "Depts" da planilha)
             </p>
           </div>
         </div>
@@ -90,13 +116,19 @@ export default async function DepartmentsAnnualPage() {
               {departments.map((dept) => (
                 <tr key={dept.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 whitespace-nowrap sticky left-0 bg-white z-10">
-                    <div className="text-sm font-medium text-gray-900">{dept.name}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {dept.name}
+                    </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{dept.code || '-'}</div>
+                    <div className="text-sm text-gray-500">
+                      {dept.code || "-"}
+                    </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right">
-                    <div className="text-sm text-gray-900">{dept.billableHeadcount}</div>
+                    <div className="text-sm text-gray-900">
+                      {dept.billableHeadcount}
+                    </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right">
                     <div className="text-sm text-gray-900">
@@ -106,36 +138,51 @@ export default async function DepartmentsAnnualPage() {
                   <td className="px-4 py-3 whitespace-nowrap text-right">
                     <div className="text-sm text-gray-900">
                       {dept.directCostAnnual
-                        ? Number(dept.directCostAnnual).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-                        : '-'}
+                        ? Number(dept.directCostAnnual).toLocaleString(
+                            "pt-BR",
+                            { minimumFractionDigits: 2 },
+                          )
+                        : "-"}
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right">
                     <div className="text-sm text-gray-900">
                       {dept.billableHoursAnnual
-                        ? Number(dept.billableHoursAnnual).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-                        : '-'}
+                        ? Number(dept.billableHoursAnnual).toLocaleString(
+                            "pt-BR",
+                            { minimumFractionDigits: 2 },
+                          )
+                        : "-"}
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right">
                     <div className="text-sm text-gray-900">
                       {dept.revenueCapacityAnnual
-                        ? Number(dept.revenueCapacityAnnual).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-                        : '-'}
+                        ? Number(dept.revenueCapacityAnnual).toLocaleString(
+                            "pt-BR",
+                            { minimumFractionDigits: 2 },
+                          )
+                        : "-"}
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right">
                     <div className="text-sm text-gray-900">
                       {dept.overheadAllocatedAnnual
-                        ? Number(dept.overheadAllocatedAnnual).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-                        : '-'}
+                        ? Number(dept.overheadAllocatedAnnual).toLocaleString(
+                            "pt-BR",
+                            { minimumFractionDigits: 2 },
+                          )
+                        : "-"}
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right bg-red-50">
                     <div className="text-sm font-semibold text-gray-900">
                       {dept.minimumRevenueAnnual
-                        ? Number(dept.minimumRevenueAnnual).toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-                        : '-'}
+                        ? Number(dept.minimumRevenueAnnual).toLocaleString(
+                            "pt-BR",
+                            { minimumFractionDigits: 2 },
+                          )
+                        : "-"}
                     </div>
                   </td>
                 </tr>
@@ -153,19 +200,29 @@ export default async function DepartmentsAnnualPage() {
                   -
                 </td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900">
-                  {totals.directCostAnnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {totals.directCostAnnual.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
                 </td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900">
-                  {totals.billableHoursAnnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {totals.billableHoursAnnual.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
                 </td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900">
-                  {totals.revenueCapacityAnnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {totals.revenueCapacityAnnual.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
                 </td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900">
-                  {totals.overheadAllocatedAnnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {totals.overheadAllocatedAnnual.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
                 </td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900 bg-red-100">
-                  {totals.minimumRevenueAnnual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {totals.minimumRevenueAnnual.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
                 </td>
               </tr>
             </tfoot>
@@ -181,6 +238,5 @@ export default async function DepartmentsAnnualPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

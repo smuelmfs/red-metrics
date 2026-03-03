@@ -8,7 +8,7 @@
  * - Séries temporais de receita vs objetivo
  */
 
-import { prisma } from '@/lib/prisma'
+import { prisma } from "@/lib/prisma";
 import {
   CompanyDashboardOverview,
   DepartmentDashboardSummary,
@@ -18,13 +18,13 @@ import {
   RevenueEvolutionPoint,
   PERFORMANCE_GOOD_THRESHOLD,
   PERFORMANCE_WARNING_THRESHOLD,
-} from './domain'
+} from "./domain";
 
 function getPerformanceStatus(value: number | null): PerformanceStatus | null {
-  if (value === null) return null
-  if (value >= PERFORMANCE_GOOD_THRESHOLD) return 'good'
-  if (value >= PERFORMANCE_WARNING_THRESHOLD) return 'warning'
-  return 'bad'
+  if (value === null) return null;
+  if (value >= PERFORMANCE_GOOD_THRESHOLD) return "good";
+  if (value >= PERFORMANCE_WARNING_THRESHOLD) return "warning";
+  return "bad";
 }
 
 /**
@@ -36,7 +36,7 @@ function getPerformanceStatus(value: number | null): PerformanceStatus | null {
  */
 export async function getCompanyDashboardOverview(
   month: number,
-  year: number
+  year: number,
 ): Promise<CompanyDashboardOverview> {
   // Buscar departamentos com contagem de avenças ativas
   const departments = await prisma.department.findMany({
@@ -50,7 +50,7 @@ export async function getCompanyDashboardOverview(
         },
       },
     },
-  })
+  });
 
   // Buscar resultados do mês/ano selecionado
   const results = await prisma.result.findMany({
@@ -67,39 +67,37 @@ export async function getCompanyDashboardOverview(
         },
       },
     },
-  })
+  });
 
   // Totais da empresa
   const totalRevenue = results.reduce(
     (sum, r) => sum + Number(r.totalRevenue),
-    0
-  )
+    0,
+  );
   const totalObjective = results.reduce(
     (sum, r) => sum + (r.objective ? Number(r.objective) : 0),
-    0
-  )
+    0,
+  );
   const overallPerformancePercentage =
-    totalObjective > 0 ? (totalRevenue / totalObjective) * 100 : null
-  const overallGap =
-    totalObjective > 0 ? totalRevenue - totalObjective : null
-  const overallStatus = getPerformanceStatus(overallPerformancePercentage)
+    totalObjective > 0 ? (totalRevenue / totalObjective) * 100 : null;
+  const overallGap = totalObjective > 0 ? totalRevenue - totalObjective : null;
+  const overallStatus = getPerformanceStatus(overallPerformancePercentage);
 
   // Mapear para summaries por departamento
   const departmentSummaries: DepartmentDashboardSummary[] = departments.map(
     (dept) => {
-      const result = results.find((r) => r.departmentId === dept.id)
-      const totalRevenueDept = result ? Number(result.totalRevenue) : null
-      const objectiveDept = result && result.objective
-        ? Number(result.objective)
-        : null
+      const result = results.find((r) => r.departmentId === dept.id);
+      const totalRevenueDept = result ? Number(result.totalRevenue) : null;
+      const objectiveDept =
+        result && result.objective ? Number(result.objective) : null;
       const performanceDept =
         result && result.performance !== null
           ? Number(result.performance)
-          : null
+          : null;
       const gapDept =
         totalRevenueDept !== null && objectiveDept !== null
           ? totalRevenueDept - objectiveDept
-          : null
+          : null;
 
       return {
         id: dept.id,
@@ -113,9 +111,9 @@ export async function getCompanyDashboardOverview(
         performancePercentage: performanceDept,
         gap: gapDept,
         status: getPerformanceStatus(performanceDept),
-      }
-    }
-  )
+      };
+    },
+  );
 
   // Dados para gráfico de performance por departamento
   const performanceData: PerformanceChartPoint[] = results
@@ -126,50 +124,48 @@ export async function getCompanyDashboardOverview(
       performancePercentage: Number(r.performance),
       objective: r.objective ? Number(r.objective) : 0,
       revenue: Number(r.totalRevenue),
-    }))
+    }));
 
   // Série dos últimos 12 meses (incluindo o mês selecionado)
   // Equivalente à visão anual da planilha
-  const last12Months: RevenueEvolutionPoint[] = []
+  const last12Months: RevenueEvolutionPoint[] = [];
   for (let i = 11; i >= 0; i--) {
-    const date = new Date(year, month - 1 - i, 1)
-    const m = date.getMonth() + 1
-    const y = date.getFullYear()
+    const date = new Date(year, month - 1 - i, 1);
+    const m = date.getMonth() + 1;
+    const y = date.getFullYear();
 
     const monthResults = await prisma.result.findMany({
       where: { month: m, year: y },
-    })
+    });
 
     const monthRevenue = monthResults.reduce(
       (sum, r) => sum + Number(r.totalRevenue),
-      0
-    )
+      0,
+    );
     const monthObjective = monthResults.reduce(
       (sum, r) => sum + (r.objective ? Number(r.objective) : 0),
-      0
-    )
+      0,
+    );
 
     last12Months.push({
-      month: date.toLocaleDateString('pt-BR', {
-        month: 'short',
-        year: 'numeric',
+      month: date.toLocaleDateString("pt-BR", {
+        month: "short",
+        year: "numeric",
       }),
       monthNumber: m,
       year: y,
       revenue: monthRevenue,
       objective: monthObjective,
-    })
+    });
   }
-  
+
   // Manter compatibilidade: last6Months são os últimos 6 de last12Months
-  const last6Months = last12Months.slice(-6)
+  const last6Months = last12Months.slice(-6);
 
   // Ranking de departamentos (apenas com performance conhecida)
   const rankingSource: RankedDepartment[] = departmentSummaries
     .filter(
-      (dept) =>
-        dept.performancePercentage !== null &&
-        dept.status !== null
+      (dept) => dept.performancePercentage !== null && dept.status !== null,
     )
     .map((dept) => ({
       id: dept.id,
@@ -180,10 +176,7 @@ export async function getCompanyDashboardOverview(
       objective: dept.objective,
       status: dept.status as PerformanceStatus,
     }))
-    .sort(
-      (a, b) =>
-        b.performancePercentage - a.performancePercentage
-    )
+    .sort((a, b) => b.performancePercentage - a.performancePercentage);
 
   return {
     month,
@@ -198,7 +191,5 @@ export async function getCompanyDashboardOverview(
     last6Months, // Compatibilidade
     last12Months, // Série anual completa
     ranking: rankingSource,
-  }
+  };
 }
-
-

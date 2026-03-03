@@ -6,7 +6,7 @@
  * - utilizationRate (uso real da capacidade)
  */
 
-import { WorkHoursPlan, WorkHoursActual, HoursCapacity } from './domain'
+import { WorkHoursPlan, WorkHoursActual, HoursCapacity } from "./domain";
 
 /**
  * Calcula horas disponíveis planejadas no mês (targetAvailableHours).
@@ -19,7 +19,7 @@ import { WorkHoursPlan, WorkHoursActual, HoursCapacity } from './domain'
  * o mesmo comportamento da API atual (não salvar valor).
  */
 export function calculateTargetAvailableHours(
-  plan: Partial<WorkHoursPlan> | null | undefined
+  plan: Partial<WorkHoursPlan> | null | undefined,
 ): number | null {
   if (
     !plan ||
@@ -27,24 +27,20 @@ export function calculateTargetAvailableHours(
     plan.targetHoursPerMonth == null ||
     plan.targetUtilization == null
   ) {
-    return null
+    return null;
   }
 
-  const { billableHeadcount, targetHoursPerMonth, targetUtilization } = plan
+  const { billableHeadcount, targetHoursPerMonth, targetUtilization } = plan;
 
   if (
     billableHeadcount <= 0 ||
     targetHoursPerMonth <= 0 ||
     targetUtilization <= 0
   ) {
-    return null
+    return null;
   }
 
-  return (
-    billableHeadcount *
-    targetHoursPerMonth *
-    targetUtilization
-  )
+  return billableHeadcount * targetHoursPerMonth * targetUtilization;
 }
 
 /**
@@ -58,22 +54,16 @@ export function calculateTargetAvailableHours(
  */
 export function calculateUtilizationRate(
   actual: Partial<WorkHoursActual> | null | undefined,
-  capacity: Partial<HoursCapacity> | null | undefined
+  capacity: Partial<HoursCapacity> | null | undefined,
 ): number | null {
-  if (!actual || !capacity) return null
+  if (!actual || !capacity) return null;
 
-  const actualHours = actual.actualBillableHours
-  const availableHours = capacity.targetAvailableHours
+  const actualHours = actual.actualBillableHours;
+  const availableHours = capacity.targetAvailableHours;
 
-  if (
-    actualHours == null ||
-    availableHours == null ||
-    availableHours <= 0
-  ) {
-    return null
+  if (actualHours == null || availableHours == null || availableHours <= 0) {
+    return null;
   }
 
-  return actualHours / availableHours
+  return actualHours / availableHours;
 }
-
-

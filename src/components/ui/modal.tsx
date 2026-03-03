@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { Fragment, ReactNode } from 'react'
+import { Fragment, ReactNode } from "react";
 
 interface ModalProps {
-  isOpen: boolean
-  onClose: () => void
-  title: string
-  children: ReactNode
-  confirmText?: string
-  cancelText?: string
-  onConfirm?: () => void
-  onCancel?: () => void
-  type?: 'info' | 'warning' | 'danger'
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  type?: "info" | "warning" | "danger";
 }
 
 export default function Modal({
@@ -19,33 +19,33 @@ export default function Modal({
   onClose,
   title,
   children,
-  confirmText = 'Confirmar',
-  cancelText = 'Cancelar',
+  confirmText = "Confirmar",
+  cancelText = "Cancelar",
   onConfirm,
   onCancel,
-  type = 'info',
+  type = "info",
 }: ModalProps) {
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleConfirm = () => {
     if (onConfirm) {
-      onConfirm()
+      onConfirm();
     }
-    onClose()
-  }
+    onClose();
+  };
 
   const handleCancel = () => {
     if (onCancel) {
-      onCancel()
+      onCancel();
     }
-    onClose()
-  }
+    onClose();
+  };
 
   const buttonColors = {
-    info: 'bg-red-600 hover:bg-red-700',
-    warning: 'bg-yellow-600 hover:bg-yellow-700',
-    danger: 'bg-red-700 hover:bg-red-800',
-  }
+    info: "bg-red-600 hover:bg-red-700",
+    warning: "bg-yellow-600 hover:bg-yellow-700",
+    danger: "bg-red-700 hover:bg-red-800",
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -64,9 +64,7 @@ export default function Modal({
                 <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                   {title}
                 </h3>
-                <div className="mt-2 text-sm text-gray-500">
-                  {children}
-                </div>
+                <div className="mt-2 text-sm text-gray-500">{children}</div>
               </div>
             </div>
           </div>
@@ -91,6 +89,5 @@ export default function Modal({
         </div>
       </div>
     </div>
-  )
+  );
 }
-

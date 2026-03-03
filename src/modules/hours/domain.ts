@@ -14,11 +14,11 @@
  */
 export interface WorkHoursPlan {
   /** Headcount faturável no mês */
-  billableHeadcount: number
+  billableHeadcount: number;
   /** Horas padrão por pessoa no mês (ex.: 160) */
-  targetHoursPerMonth: number
+  targetHoursPerMonth: number;
   /** Utilização alvo (0.0 a 1.0, ex.: 0.65) */
-  targetUtilization: number
+  targetUtilization: number;
 }
 
 /**
@@ -26,7 +26,7 @@ export interface WorkHoursPlan {
  */
 export interface WorkHoursActual {
   /** Horas faturáveis reais registradas (ex.: do Odoo) */
-  actualBillableHours: number
+  actualBillableHours: number;
 }
 
 /**
@@ -34,7 +34,5 @@ export interface WorkHoursActual {
  */
 export interface HoursCapacity {
   /** Horas disponíveis planejadas no mês (HC * horas * utilização) */
-  targetAvailableHours: number
+  targetAvailableHours: number;
 }
-
-

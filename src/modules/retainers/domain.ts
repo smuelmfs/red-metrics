@@ -12,9 +12,9 @@
  *   monthlyRevenue = monthlyPrice * quantity
  */
 export interface RetainerPricing {
-  monthlyPrice: number
-  quantity: number
-  monthlyRevenue: number
+  monthlyPrice: number;
+  quantity: number;
+  monthlyRevenue: number;
 }
 
 /**
@@ -24,22 +24,22 @@ export interface RetainerPricing {
  * "avença ativa" no domínio.
  */
 export interface RetainerContract {
-  id: string
-  departmentId: string
-  catalogId?: string | null
-  name: string
-  type?: string | null
-  pricing: RetainerPricing
+  id: string;
+  departmentId: string;
+  catalogId?: string | null;
+  name: string;
+  type?: string | null;
+  pricing: RetainerPricing;
 
-  hoursPerMonth?: number | null
-  variableCostPerMonth?: number | null
+  hoursPerMonth?: number | null;
+  variableCostPerMonth?: number | null;
 
-  monthlyChurn?: number | null
-  newRetainersPerMonth?: number | null
+  monthlyChurn?: number | null;
+  newRetainersPerMonth?: number | null;
 
-  startDate: Date
-  endDate?: Date | null
-  isActive: boolean
+  startDate: Date;
+  endDate?: Date | null;
+  isActive: boolean;
 }
 
 /**
@@ -48,13 +48,11 @@ export interface RetainerContract {
  * É um view model / DTO de domínio, NÃO uma entidade persistida.
  */
 export interface DepartmentRetainerSummary {
-  departmentId: string
-  month: number
-  year: number
+  departmentId: string;
+  month: number;
+  year: number;
   /** Receita recorrente mensal total de avenças ativas no período */
-  retainerMonthlyRevenue: number
+  retainerMonthlyRevenue: number;
   /** Quantidade de avenças ativas consideradas no período */
-  activeRetainersCount: number
+  activeRetainersCount: number;
 }
-
-

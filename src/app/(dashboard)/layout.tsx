@@ -1,18 +1,18 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import Sidebar from '@/components/ui/Sidebar'
-import MobileHeaderWrapper from '@/components/ui/MobileHeaderWrapper'
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import Sidebar from "@/components/ui/Sidebar";
+import MobileHeaderWrapper from "@/components/ui/MobileHeaderWrapper";
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/')
+    redirect("/");
   }
 
   return (
@@ -31,11 +31,8 @@ export default async function DashboardLayout({
           userName={session.user.name}
           userEmail={session.user.email}
         />
-        <div className="p-4 lg:p-6">
-          {children}
-        </div>
+        <div className="p-4 lg:p-6">{children}</div>
       </main>
     </div>
-  )
+  );
 }
-
